@@ -1,0 +1,98 @@
+{
+  "nodes": {
+    "root": {
+      "text": "Root",
+      "cha": null,
+      "con": [
+        "chuong1",
+        "chuong2"
+      ]
+    },
+    "chuong1": {
+      "text": "Chương I",
+      "cha": "root",
+      "con": [
+        "dieu1",
+        "dieu2"
+      ]
+    },
+    "chuong2": {
+      "text": "Chương II",
+      "cha": "root",
+      "con": [
+        "dieu3",
+        "dieu4"
+      ]
+    },
+    "dieu1": {
+      "text": "Điều 1",
+      "cha": "chuong1",
+      "con": [
+        "chunk1",
+        "chunk2"
+      ]
+    },
+    "dieu2": {
+      "text": "Điều 2",
+      "cha": "chuong1",
+      "con": []
+    },
+    "dieu3": {
+      "text": "Điều 3",
+      "cha": "chuong2",
+      "con": [
+        "chunk3"
+      ]
+    },
+    "dieu4": {
+      "text": "Điều 4",
+      "cha": "chuong2",
+      "con": [
+        "node_1749790791786_2xj480euy"
+      ]
+    },
+    "chunk1": {
+      "text": "chunk 1",
+      "cha": "dieu1",
+      "con": []
+    },
+    "chunk2": {
+      "text": "chunk 2",
+      "cha": "dieu1",
+      "con": []
+    },
+    "chunk3": {
+      "text": "chunk 3",
+      "cha": "dieu3",
+      "con": []
+    },
+    "node_1749790791786_2xj480euy": {
+      "text": "chunk 4",
+      "cha": "dieu4",
+      "con": []
+    }
+  },
+  "customPositions": {
+    "node_1749790791786_2xj480euy": {
+      "x": 786.25,
+      "y": 350
+    },
+    "chunk3": {
+      "x": 488,
+      "y": 344
+    },
+    "chunk2": {
+      "x": 230,
+      "y": 345
+    },
+    "chunk1": {
+      "x": 0,
+      "y": 342
+    }
+  },
+  "disconnectedNodes": [],
+  "metadata": {
+    "lastModified": "2025-06-13T06:32:38.501Z",
+    "version": "1.0.0"
+  }
+}
