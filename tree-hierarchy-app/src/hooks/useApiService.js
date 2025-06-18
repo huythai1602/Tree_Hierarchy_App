@@ -1,5 +1,5 @@
 // File: src/hooks/useApiService.js (NEW FILE)
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
 
@@ -93,7 +93,8 @@ export const useApiService = () => {
     return await callApi('/health');
   }, [callApi]);
 
-  return {
+  // SỬA: Memo hóa object trả về để tránh gây lặp useEffect ở các hook sử dụng
+  return useMemo(() => ({
     loading,
     error,
     loadTreeData,
@@ -103,5 +104,15 @@ export const useApiService = () => {
     deleteNode,
     resetTreeData,
     checkHealth
-  };
+  }), [
+    loading,
+    error,
+    loadTreeData,
+    saveTreeData,
+    addNode,
+    updateNode,
+    deleteNode,
+    resetTreeData,
+    checkHealth
+  ]);
 };
