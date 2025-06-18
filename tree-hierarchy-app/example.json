@@ -1,0 +1,118 @@
+{
+  "nodes": {
+    "root": {
+      "text": "Project Root",
+      "cha": null,
+      "con": ["frontend", "backend", "database"]
+    },
+    "frontend": {
+      "text": "Frontend Development",
+      "cha": "root",
+      "con": ["react", "vue", "angular"]
+    },
+    "backend": {
+      "text": "Backend Development", 
+      "cha": "root",
+      "con": ["nodejs", "python", "java"]
+    },
+    "database": {
+      "text": "Database Management",
+      "cha": "root", 
+      "con": ["mysql", "mongodb"]
+    },
+    "react": {
+      "text": "React.js",
+      "cha": "frontend",
+      "con": ["components", "hooks"]
+    },
+    "vue": {
+      "text": "Vue.js",
+      "cha": "frontend",
+      "con": []
+    },
+    "angular": {
+      "text": "Angular",
+      "cha": "frontend",
+      "con": []
+    },
+    "nodejs": {
+      "text": "Node.js",
+      "cha": "backend",
+      "con": ["express", "nest"]
+    },
+    "python": {
+      "text": "Python",
+      "cha": "backend",
+      "con": ["django", "flask"]
+    },
+    "java": {
+      "text": "Java",
+      "cha": "backend",
+      "con": []
+    },
+    "mysql": {
+      "text": "MySQL",
+      "cha": "database",
+      "con": []
+    },
+    "mongodb": {
+      "text": "MongoDB",
+      "cha": "database",
+      "con": []
+    },
+    "components": {
+      "text": "React Components",
+      "cha": "react",
+      "con": []
+    },
+    "hooks": {
+      "text": "React Hooks",
+      "cha": "react",
+      "con": []
+    },
+    "express": {
+      "text": "Express.js",
+      "cha": "nodejs",
+      "con": []
+    },
+    "nest": {
+      "text": "NestJS",
+      "cha": "nodejs",
+      "con": []
+    },
+    "django": {
+      "text": "Django",
+      "cha": "python",
+      "con": []
+    },
+    "flask": {
+      "text": "Flask",
+      "cha": "python",
+      "con": []
+    }
+  },
+  "disconnectedNodes": [],
+  "customPositions": {
+    "root": {
+      "x": 400,
+      "y": 50
+    },
+    "frontend": {
+      "x": 200,
+      "y": 150
+    },
+    "backend": {
+      "x": 400,
+      "y": 150
+    },
+    "database": {
+      "x": 600,
+      "y": 150
+    }
+  },
+  "metadata": {
+    "exportedAt": "2024-01-15T10:30:00.000Z",
+    "version": "1.0",
+    "description": "Sample project structure for testing JSON import/export feature"
+  }
+}

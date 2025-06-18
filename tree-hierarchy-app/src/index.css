@@ -1,0 +1,38 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Global utility classes */
+.w-full { width: 100%; }
+.h-full { height: 100%; }
+.text-xs { font-size: 0.75rem; }
+.text-sm { font-size: 0.875rem; }
+.font-medium { font-weight: 500; }
+.font-bold { font-weight: 700; }
+.border-none { border: none; }
+.outline-none { outline: none; }
+.bg-transparent { background-color: transparent; }
+
+/* Color utilities */
+.fill-white { fill: white; }
+.fill-gray-800 { fill: #1f2937; }
+.text-gray-800 { color: #1f2937; }
+.text-gray-600 { color: #4b5563; }
+.bg-gray-50 { background-color: #f9fafb; }
+
+/* Hover effects */
+.hover\:opacity-80:hover { opacity: 0.8; }
+.hover\:fill-green-600:hover { fill: #16a34a; }
+.hover\:fill-blue-600:hover { fill: #2563eb; }
+.hover\:fill-amber-600:hover { fill: #d97706; }
+.hover\:fill-red-600:hover { fill: #dc2626; }
