@@ -1,0 +1,94 @@
+{
+    "root_id": "30d2b4ef-e963-4e38-9daa-46c8c4f5cde7",
+    "tree": {
+        "30d2b4ef-e963-4e38-9daa-46c8c4f5cde7": {
+            "text": "Giải pháp AI Camera cho trại giam (3) (1)",
+            "cha": null,
+            "con": [
+                "15c11917-a6ad-41b8-bdcc-4ce1530aaeb0",
+                "39d760c5-71d3-471e-a254-f372808498b9",
+                "6bf36f11-20a2-444a-ae94-0c29f04472fb"
+            ]
+        },
+        "15c11917-a6ad-41b8-bdcc-4ce1530aaeb0": {
+            "text": "\n1. AI CAMERA\n \n",
+            "cha": "30d2b4ef-e963-4e38-9daa-46c8c4f5cde7",
+            "con": [
+                "5bc4bf20-bd84-4c0e-8aa1-2c146e27333c",
+                "11b16a73-eab0-4f1e-90da-c57ccb604415"
+            ]
+        },
+        "5bc4bf20-bd84-4c0e-8aa1-2c146e27333c": {
+            "text": "\n1.1. Mô hình chức năng\n \n",
+            "cha": "15c11917-a6ad-41b8-bdcc-4ce1530aaeb0",
+            "con": [
+                "54c781b6-ba89-4992-afec-7b12fc31853b",
+                "87672a8f-e4cc-4503-bb41-a5dab603bbc3",
+                "0dbb9d76-c182-4687-9fc6-d1c583735636",
+                "6b7f8585-9663-4555-95c1-597cc15710de"
+            ]
+        },
+        "54c781b6-ba89-4992-afec-7b12fc31853b": {
+            "text": "Mô hình tổng quan của hệ thống được xây dựng theo cấu trúc phân tầng với các thành phần chính, mỗi thành phần có một nhiệm vụ cụ thể nhằm cung cấp dịch vụ xử lý video hiệu quả và an toàn.\n<image>9e0ad014-5b38-4914-b0a7-f557f0d1bea4</image>\nCác tầng trong hệ thống bao gồm:",
+            "cha": "5bc4bf20-bd84-4c0e-8aa1-2c146e27333c",
+            "con": []
+        },
+        "87672a8f-e4cc-4503-bb41-a5dab603bbc3": {
+            "text": "1. - Videos (Dữ liệu đầu vào): \n\nĐây là nguồn dữ liệu đầu vào cho hệ thống giám sát, bao gồm: \n Camera: Camera IP, CCTV, và các loại camera hỗ trợ RTSP streaming. \n Other video stream: Dữ liệu video từ các luồng trực tuyến hoặc thiết bị ghi hình khác. \n- Integrated Service (Dịch vụ tích hợp): \n Multi-Channel: Hỗ trợ giám sát trên nhiều nền tảng: Website, ứng dụng di động và các hệ thống tích hợp khác; Tích hợp hệ thống gửi cảnh báo tự động qua Zalo, SMS hoặc thông báo đẩy khi phát hiện sự kiện bất thường. \n Storage Integration: Hỗ trợ lưu trữ video trên đám mây. \n- User Interface (Giao diện người dùng): \n Web Frontend: Giao diện cho phép giám sát thời gian thực từ nhiều camera đồng thời. \n Web Administration: Quản lý thiết bị camera, cấu hình khu vực giám sát và thiết lập cảnh báo; Xem nhật ký sự kiện và truy xuất video lịch sử. \n Mobile Application: Ứng dụng di động để theo dõi video từ xa và nhận thông báo thời gian thực.",
+            "cha": "5bc4bf20-bd84-4c0e-8aa1-2c146e27333c",
+            "con": []
+        },
+        "0dbb9d76-c182-4687-9fc6-d1c583735636": {
+            "text": "- Video Processing (Xử lý video): \n\n Video Loader: Nạp và đồng bộ video từ camera hoặc luồng video khác. \n Pre-Processing: Chuẩn hóa, lọc nhiễu và tối ưu chất lượng hình ảnh/video đầu vào. \n Segmentation: Phân chia video thành các phần nhỏ hoặc khung hình để xử lý. \n Feature Extraction: Trích xuất các đặc trưng quan trọng như: khuôn mặt, biển số xe, hoặc đối tượng cụ thể. \n Predict Recognition: Tính năng AI nâng cao bao gồm: Face Recognition: Nhận diện khuôn mặt để xác định danh tính và Object Detection: Phát hiện và theo dõi các đối tượng như người, phương tiện hoặc vật thể. \n\n- Database (Cơ sở dữ liệu): \n\n Data Management: Quản lý dữ liệu người dùng, phân quyền, sự kiện, …. \n Feature Storage: Lưu trữ các đặc trưng được trích xuất như thông tin khuôn mặt \n Object Storage: Lưu trữ hình ảnh dạng tệp trên hệ thống cục bộ hoặc đám mây. \n Scalable Storage: Hỗ trợ lưu trữ linh hoạt, có khả năng mở rộng tự động để đáp ứng nhu cầu lưu trữ dữ liệu lớn và phân tán.",
+            "cha": "5bc4bf20-bd84-4c0e-8aa1-2c146e27333c",
+            "con": []
+        },
+        "6b7f8585-9663-4555-95c1-597cc15710de": {
+            "text": "- Security and Administration (Bảo mật và Quản trị): \n\n Encryption: Mã hóa video khi lưu trữ và truyền tải để bảo đảm an toàn dữ liệu. \n Role-Based Access Control (RBAC): Phân quyền người dùng dựa trên vai trò: quản trị viên, người giám sát, người xem. \n Audit Logs: Ghi lại lịch sử truy cập và thao tác của người dùng trên hệ thống. \n\n- Backup & Recovery: Hệ thống tự động sao lưu và phục hồi dữ liệu trong trường hợp sự cố.",
+            "cha": "5bc4bf20-bd84-4c0e-8aa1-2c146e27333c",
+            "con": []
+        },
+        "11b16a73-eab0-4f1e-90da-c57ccb604415": {
+            "text": "\n1.1. Kiến trúc hệ thống\n \n",
+            "cha": "15c11917-a6ad-41b8-bdcc-4ce1530aaeb0",
+            "con": [
+                "2cba5e92-bbf5-4b94-a24c-1868f2b8b142",
+                "8c746a20-53bd-4ae0-8d10-74e45ddbf48b"
+            ]
+        },
+        "2cba5e92-bbf5-4b94-a24c-1868f2b8b142": {
+            "text": "<image>743376d3-23da-4246-af12-4269bc5e9013</image>",
+            "cha": "11b16a73-eab0-4f1e-90da-c57ccb604415",
+            "con": []
+        },
+        "8c746a20-53bd-4ae0-8d10-74e45ddbf48b": {
+            "text": "Mô hình kiến trúc hệ thống \nHệ thống được thiết kế với các thành phần chính sau: \n AI Server/Box: Triển khai các mô hình AI và các dịch vụ AI Core. \n Cân bằng tải/Reverse Proxy (HA): Hoạt động theo cơ chế High Availability, đảm nhiệm vai trò phân phối lưu lượng truy cập và các yêu cầu đến các máy chủ nghiệp vụ thích hợp, đảm bảo tính sẵn sàng và khả năng chịu tải cao. (Được thể hiện trong hình là các khối HA 01, HA 02 ở cả DMZ và INTERNAL) \n App Service: Chứa các dịch vụ cốt lõi của hệ thống, được triển khai dưới dạng các ứng dụng (app) độc lập trong các Docker container. \n Streaming: Chuyên trách xử lý luồng video trực tiếp từ camera và cung cấp các luồng này cho người dùng cuối (Stream Service). \n Message Queue: Sử dụng cho việc quản lý hàng đợi tin nhắn (message queue), đảm bảo tính nhất quán và độ sẵn sàng cao trong việc truyền thông điệp giữa các dịch vụ. \n Database: Lưu trữ các dữ liệu quan trọng của hệ thống như phân quyền, cấu hình, thông tin sự kiện, v.v \n File Storage: Lưu trữ các tệp tin như hình ảnh sự kiện, tệp cấu hình, v.v. \n Log, Monitor, Deployment: Đảm nhiệm việc quản lý, giám sát và triển khai hệ thống.",
+            "cha": "11b16a73-eab0-4f1e-90da-c57ccb604415",
+            "con": []
+        },
+        "39d760c5-71d3-471e-a254-f372808498b9": {
+            "text": "\n2. Thông số kỹ thuật tối thiểu\n \n",
+            "cha": "30d2b4ef-e963-4e38-9daa-46c8c4f5cde7",
+            "con": [
+                "cc982a87-f910-44ab-8a59-2c72052bee60"
+            ]
+        },
+        "cc982a87-f910-44ab-8a59-2c72052bee60": {
+            "text": "",
+            "cha": "39d760c5-71d3-471e-a254-f372808498b9",
+            "con": []
+        },
+        "6bf36f11-20a2-444a-ae94-0c29f04472fb": {
+            "text": "\n3. Bài toán tổng quan\n \n",
+            "cha": "30d2b4ef-e963-4e38-9daa-46c8c4f5cde7",
+            "con": [
+                "b75bb5b2-f27e-4c37-be2d-b47703d56437"
+            ]
+        },
+        "b75bb5b2-f27e-4c37-be2d-b47703d56437": {
+            "text": "<image>32c03282-2510-403c-b98a-27b99e2072a2</image>",
+            "cha": "6bf36f11-20a2-444a-ae94-0c29f04472fb",
+            "con": []
+        }
+    }
+}
