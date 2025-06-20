@@ -2,18 +2,33 @@ import React, { useState, useRef } from 'react';
 import { ChevronRight, ChevronDown, Folder, FolderOpen, Plus, Edit3, Move, Trash2, X, Check, AlertTriangle } from 'lucide-react';
 import EditNodeModal from './EditNodeModal';
 
-const TreeView = ({ trees }) => {
+const TreeView = ({ trees, selectedTree, onEditNode, onAddNode, onMoveNode, onDeleteNode, isNodeDisconnected }) => {
   if (!trees || Object.keys(trees).length === 0) {
     return <div style={{ padding: 24, color: '#6b7280' }}>Chưa có dữ liệu để hiển thị.</div>;
   }
 
   return (
-    <div className="tree-view" style={{ width: '100%', height: '100%', overflowY: 'auto' }}>
+    <div className="tree-view" style={{ 
+      width: '100%', 
+      height: '100%', 
+      overflow: 'visible', // ✅ Let parent handle overflow
+      padding: '16px',
+      boxSizing: 'border-box'
+    }}>
       {Object.entries(trees).map(([fileName, tree]) => (
         <div key={fileName} style={{ marginBottom: 32, border: '1px solid #e5e7eb', borderRadius: 8, background: '#f9fafb', padding: 16 }}>
           <div style={{ fontWeight: 700, fontSize: 16, color: '#1d4ed8', marginBottom: 8 }}>{fileName}</div>
           {tree.nodes && tree.nodes.root && (
-            <TreeNode nodeId="root" nodes={tree.nodes} onEditNode={undefined} onAddNode={undefined} onMoveNode={undefined} onDeleteNode={undefined} isNodeDisconnected={undefined} />
+            <TreeNode 
+              nodeId="root" 
+              nodes={tree.nodes} 
+              fileName={fileName}
+              onEditNode={onEditNode}
+              onAddNode={onAddNode}
+              onMoveNode={onMoveNode}
+              onDeleteNode={onDeleteNode}
+              isNodeDisconnected={isNodeDisconnected}
+            />
           )}
         </div>
       ))}
@@ -21,10 +36,8 @@ const TreeView = ({ trees }) => {
   );
 };
 
-const TreeNode = ({ nodeId, nodes, onEditNode, onAddNode, onMoveNode, onDeleteNode, isNodeDisconnected }) => {
+const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, onDeleteNode, isNodeDisconnected }) => {
   const [expandedNodes, setExpandedNodes] = useState(new Set(['root']));
-  const [editingNode, setEditingNode] = useState(null);
-  const [editText, setEditText] = useState('');
   const [showAddForm, setShowAddForm] = useState(null);
   const [newNodeText, setNewNodeText] = useState('');
   const [movingNode, setMovingNode] = useState(null);
@@ -58,13 +71,15 @@ const TreeNode = ({ nodeId, nodes, onEditNode, onAddNode, onMoveNode, onDeleteNo
     setIsModalOpen(true);
   };
 
-  // Handle modal save
+  // Handle modal save - FIXED: Gọi onEditNode với fileName
   const handleModalSave = (nodeId, newText) => {
     if (newText.trim() && onEditNode) {
-      onEditNode(nodeId, newText.trim());
+      const success = onEditNode(fileName, nodeId, newText.trim());
+      if (success !== false) {
+        setIsModalOpen(false);
+        setSelectedNodeId(null);
+      }
     }
-    setIsModalOpen(false);
-    setSelectedNodeId(null);
   };
 
   // Handle modal cancel
@@ -73,14 +88,16 @@ const TreeNode = ({ nodeId, nodes, onEditNode, onAddNode, onMoveNode, onDeleteNo
     setSelectedNodeId(null);
   };
 
-  // Add node
+  // Add node - FIXED: Gọi onAddNode với fileName
   const addNode = (parentId) => {
     if (newNodeText.trim() && onAddNode) {
-      onAddNode(parentId, newNodeText.trim());
-      setNewNodeText('');
-      setShowAddForm(null);
-      // Auto expand parent
-      setExpandedNodes(prev => new Set([...prev, parentId]));
+      const success = onAddNode(fileName, parentId, newNodeText.trim());
+      if (success !== false) {
+        setNewNodeText('');
+        setShowAddForm(null);
+        // Auto expand parent
+        setExpandedNodes(prev => new Set([...prev, parentId]));
+      }
     }
   };
 
@@ -89,15 +106,31 @@ const TreeNode = ({ nodeId, nodes, onEditNode, onAddNode, onMoveNode, onDeleteNo
     setMovingNode(nodeId);
   };
 
-  // Execute move
+  // Execute move - FIXED: Gọi onMoveNode với fileName
   const executeMove = (nodeId, targetId) => {
     if (nodeId !== targetId && onMoveNode) {
-      const success = onMoveNode(nodeId, targetId);
-      if (success) {
+      const success = onMoveNode(fileName, nodeId, targetId);
+      if (success !== false) {
         setMovingNode(null);
         // Auto expand target if it becomes a parent
         if (nodes[targetId] && nodes[targetId].con) {
           setExpandedNodes(prev => new Set([...prev, targetId]));
+        }
+      }
+    }
+  };
+
+  // Handle delete - FIXED: Gọi onDeleteNode với fileName và confirm
+  const handleDelete = (nodeId) => {
+    if (onDeleteNode) {
+      // Confirm before delete
+      const nodeText = nodes[nodeId]?.text || 'Unknown';
+      const truncatedText = nodeText.length > 50 ? nodeText.substring(0, 50) + '...' : nodeText;
+      
+      if (window.confirm(`Bạn có chắc chắn muốn xóa node "${truncatedText}" và tất cả các node con không?`)) {
+        const success = onDeleteNode(fileName, nodeId);
+        if (success === false) {
+          alert('Không thể xóa node này');
         }
       }
     }
@@ -200,7 +233,7 @@ const TreeNode = ({ nodeId, nodes, onEditNode, onAddNode, onMoveNode, onDeleteNo
     const isMoving = movingNode === nodeId;
     const isDropTarget = draggedOver === nodeId && draggedNode && draggedNode !== nodeId;
     const isDragging = draggedNode === nodeId;
-    const isDisconnected = isNodeDisconnected ? isNodeDisconnected(nodeId) : false;
+    const isDisconnected = isNodeDisconnected ? isNodeDisconnected(fileName, nodeId) : false;
 
     return (
       <div key={nodeId} className="tree-node-container">
@@ -377,9 +410,7 @@ const TreeNode = ({ nodeId, nodes, onEditNode, onAddNode, onMoveNode, onDeleteNo
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (onDeleteNode) {
-                    onDeleteNode(nodeId);
-                  }
+                  handleDelete(nodeId);
                 }}
                 className="action-btn delete-btn"
                 title="Xóa"
@@ -476,6 +507,15 @@ const TreeNode = ({ nodeId, nodes, onEditNode, onAddNode, onMoveNode, onDeleteNo
   return (
     <div className="tree-content">
       {renderTree('root')}
+      
+      {/* Edit Modal */}
+      <EditNodeModal
+        isOpen={isModalOpen}
+        nodeId={selectedNodeId}
+        nodeText={selectedNodeId ? nodes[selectedNodeId]?.text : ''}
+        onSave={handleModalSave}
+        onCancel={handleModalCancel}
+      />
     </div>
   );
 };

@@ -4,7 +4,7 @@ import React, { useState, useMemo, useRef, useEffect, forwardRef, useImperativeH
 const DfsTextView = forwardRef(({
   nodes,
   disconnectedNodes,
-  isNodeDisconnected,
+  isNodeDisconnected = () => false, // ✅ FIXED: Default fallback function
   dfsOrder, // Get consistent DFS order from useTreeLayout
   onEditNode, // Add this prop for editing
   dfsScroll = 0, // New prop for scroll position
@@ -66,11 +66,28 @@ const DfsTextView = forwardRef(({
       // CRITICAL: Get FULL text content - NO TRUNCATION
       const nodeText = nodes[nodeId].text || '';
       
+      // ✅ FIXED: Safe call to isNodeDisconnected with fallback
+      let nodeIsDisconnected = false;
+      try {
+        if (typeof isNodeDisconnected === 'function') {
+          // For multi-tree mode, need to pass selectedTree and nodeId
+          if (selectedTree) {
+            nodeIsDisconnected = isNodeDisconnected(selectedTree, nodeId);
+          } else {
+            // For single tree mode, just pass nodeId
+            nodeIsDisconnected = isNodeDisconnected(nodeId);
+          }
+        }
+      } catch (error) {
+        console.warn('Error calling isNodeDisconnected:', error);
+        nodeIsDisconnected = false;
+      }
+      
       visitedNodes.push({
         id: nodeId,
         text: nodeText, // FULL CONTENT - NO TRUNCATION
         originalText: nodeText, // Keep original for reference
-        isDisconnected: isNodeDisconnected(nodeId),
+        isDisconnected: nodeIsDisconnected,
         isRoot: nodeId === 'root',
         textLength: nodeText.length
       });
@@ -108,7 +125,7 @@ const DfsTextView = forwardRef(({
     }
     
     return visitedNodes;
-  }, [nodes, disconnectedNodes, isNodeDisconnected, contentDisplay]);
+  }, [nodes, disconnectedNodes, isNodeDisconnected, contentDisplay, selectedTree]);
 
   // Create display text based on content mode - PRESERVE FULL CONTENT
   const getDisplayResult = useMemo(() => {
@@ -204,25 +221,43 @@ const DfsTextView = forwardRef(({
     <div
       ref={scrollRef}
       style={{
-        overflowY: 'scroll', // Always show vertical scrollbar
-        overflowX: 'auto',   // Only show horizontal scrollbar when needed
+        width: '100%',
+        height: '100%', // ✅ CRITICAL: Take full height
+        overflowY: 'auto', // ✅ Always show vertical scrollbar when needed
+        overflowX: 'auto', // ✅ Always show horizontal scrollbar when needed  
         background: 'white',
+        display: 'flex',
+        flexDirection: 'column'
       }}
     >
-      {/* Dropdown chọn file JSON nếu có nhiều file */}
-      {trees && Object.keys(trees).length > 1 && (
-        <div style={{ padding: '16px 24px 0 24px', background: 'white', position: 'sticky', top: 0, zIndex: 10 }}>
-          <label htmlFor="dfs-file-select" style={{ fontWeight: 600, marginRight: 8 }}>Chọn file JSON:</label>
+      {/* Dropdown chọn file JSON - hiển thị luôn nếu có trees */}
+      {trees && Object.keys(trees).length > 0 && (
+        <div style={{ padding: '16px 24px 0 24px', background: 'white', position: 'sticky', top: 0, zIndex: 10, borderBottom: '1px solid #e5e7eb' }}>
+          <label htmlFor="dfs-file-select" style={{ fontWeight: 600, marginRight: 8, color: '#374151' }}>Chọn file JSON:</label>
           <select
             id="dfs-file-select"
             value={selectedTree || Object.keys(trees)[0]}
             onChange={e => setSelectedTree(e.target.value)}
-            style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid #d1d5db', fontSize: 15 }}
+            style={{ 
+              padding: '6px 12px', 
+              borderRadius: 6, 
+              border: '1px solid #d1d5db', 
+              fontSize: 15,
+              backgroundColor: 'white',
+              color: '#374151',
+              fontWeight: 500,
+              minWidth: '200px'
+            }}
           >
             {Object.keys(trees).map(fileName => (
               <option key={fileName} value={fileName}>{fileName}</option>
             ))}
           </select>
+          {Object.keys(trees).length > 1 && (
+            <span style={{ marginLeft: 8, fontSize: '12px', color: '#6b7280' }}>
+              ({Object.keys(trees).length} files available)
+            </span>
+          )}
         </div>
       )}
       <pre style={{
@@ -232,11 +267,13 @@ const DfsTextView = forwardRef(({
         lineHeight: '1.6',
         color: '#1f2937',
         margin: 0,
-        padding: '24px 24px 0 24px',
+        padding: '24px',
         border: 'none',
         boxShadow: 'none',
         whiteSpace: 'pre-wrap',
         wordBreak: 'break-word',
+        flex: 1, // ✅ Take remaining space
+        overflow: 'auto' // ✅ Allow scrolling within pre
       }}>
         {filteredResult.noResults ? (
           <span style={{ color: '#9ca3af', fontStyle: 'italic' }}>

@@ -3,7 +3,6 @@ import TreeCanvas from './components/TreeCanvas';
 import TreeView from './components/TreeView';
 import DfsTextView from './components/DfsTextView';
 import JsonImporter from './components/JsonImporter';
-import { useTreeData } from './hooks/useTreeData';
 import { useTreeLayout } from './hooks/useTreeLayout';
 import { useDragDrop } from './hooks/useDragDrop';
 import { 
@@ -12,7 +11,10 @@ import {
   FileText,
   Loader,
   Database,
-  Eye
+  Eye,
+  ChevronDown,
+  Upload,
+  FolderOpen
 } from 'lucide-react';
 import './styles/TreeHierarchy.css';
 
@@ -43,8 +45,12 @@ const TreeSelectorModal = ({ trees, selectedTree, onSelect, onClose }) => {
                   cursor: 'pointer',
                   outline: 'none',
                   transition: 'all 0.2s',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
                 }}
               >
+                <FolderOpen className="w-4 h-4" />
                 {fileName}
               </button>
             </li>
@@ -56,32 +62,117 @@ const TreeSelectorModal = ({ trees, selectedTree, onSelect, onClose }) => {
   );
 };
 
+// Welcome Screen for first-time users
+const WelcomeScreen = ({ onImport, isLoading }) => {
+  return (
+    <div className="tree-hierarchy" style={{ 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center', 
+      flexDirection: 'column', 
+      gap: '32px',
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      color: 'white',
+      textAlign: 'center'
+    }}>
+      <div style={{ maxWidth: '600px', padding: '0 24px' }}>
+        <h1 style={{ 
+          fontSize: '3rem', 
+          fontWeight: 'bold', 
+          marginBottom: '16px',
+          textShadow: '0 4px 6px rgba(0,0,0,0.3)'
+        }}>
+          🌳 Tree Hierarchy Manager
+        </h1>
+        <p style={{ 
+          fontSize: '1.25rem', 
+          marginBottom: '32px',
+          opacity: 0.9,
+          lineHeight: 1.6
+        }}>
+          Chào mừng bạn đến với ứng dụng quản lý cây phân cấp! 
+          Hãy bắt đầu bằng cách import các file JSON chứa dữ liệu cây của bạn.
+        </p>
+        
+        <div style={{
+          background: 'rgba(255,255,255,0.1)',
+          borderRadius: '16px',
+          padding: '32px',
+          marginBottom: '32px',
+          backdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255,255,255,0.2)'
+        }}>
+          <h3 style={{ 
+            fontSize: '1.5rem', 
+            marginBottom: '24px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '12px'
+          }}>
+            <Upload className="w-6 h-6" />
+            Import Dữ Liệu JSON
+          </h3>
+          
+          <JsonImporter 
+            onImport={onImport}
+            isLoading={isLoading}
+            currentData={{}}
+            hideButtons={false}
+          />
+        </div>
+
+        <div style={{
+          background: 'rgba(255,255,255,0.1)',
+          borderRadius: '12px',
+          padding: '24px',
+          fontSize: '14px',
+          opacity: 0.8
+        }}>
+          <h4 style={{ marginBottom: '12px', fontSize: '16px' }}>💡 Tính năng chính:</h4>
+          <ul style={{ 
+            listStyle: 'none', 
+            padding: 0, 
+            margin: 0,
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '8px'
+          }}>
+            <li>📊 Canvas View - Xem cây trực quan</li>
+            <li>📁 Tree View - Duyệt cây dạng folder</li>
+            <li>📄 DFS View - Xem nội dung đầy đủ</li>
+            <li>✏️ Chỉnh sửa nodes trực tiếp</li>
+            <li>🔄 Di chuyển và sắp xếp nodes</li>
+            <li>💾 Tự động lưu vào localStorage</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 function App() {
+  console.log('🔄 App render');
+
   // Multi-tree state
-  const [trees, setTrees] = useState({}); // { fileName: { nodes, disconnectedNodes, customPositions } }
-  const [selectedTree, setSelectedTree] = useState(null); // fileName
-  const [isLoading, setIsLoading] = useState(false);
-  // For backward compatibility, use the first tree if selectedTree is null
+  const [trees, setTrees] = useState({}); 
+  const [selectedTree, setSelectedTree] = useState(null); 
+  const [isLoading, setIsLoading] = useState(true); // Start with loading to check localStorage
+  const [viewMode, setViewMode] = useState('canvas');
+  const [importLoading, setImportLoading] = useState(false);
+  const [dfsScroll, setDfsScroll] = useState(0);
+  const dfsViewRef = useRef(null);
+
+  // Modal chọn cây
+  const [showTreeSelector, setShowTreeSelector] = useState(false);
+  
+  // First time user flag
+  const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
+
+  // Get current tree
   const currentTree = selectedTree && trees[selectedTree] ? trees[selectedTree] : Object.values(trees)[0];
-  // Hooks for current tree
-  const { 
-    isLoading: treeLoading,
-    hasUnsavedChanges,
-    lastSaved,
-    apiError,
-    shouldTriggerAutoLayout,
-    addNode, 
-    deleteNode, 
-    disconnectNode,
-    connectNode,
-    updateNodeText, 
-    moveNode,
-    isNodeDisconnected,
-    updateCustomPositions,
-    importJsonData,
-    clearAutoLayoutTrigger,
-    resetTreeData
-  } = useTreeData(currentTree);
+  
+  // Layout hooks
   const { positions, canvasSize, dfsOrder } = useTreeLayout(currentTree?.nodes || {}, currentTree?.customPositions || {});
   
   const { 
@@ -91,75 +182,296 @@ function App() {
     updateDrag, 
     endDrag, 
     updatePositions 
-  } = useDragDrop(currentTree?.customPositions || {}, updateCustomPositions);
+  } = useDragDrop(currentTree?.customPositions || {}, (newPositions) => {
+    if (selectedTree && trees[selectedTree]) {
+      setTrees(prev => ({
+        ...prev,
+        [selectedTree]: {
+          ...prev[selectedTree],
+          customPositions: newPositions
+        }
+      }));
+      
+      // Save to localStorage
+      const updatedTrees = {
+        ...trees,
+        [selectedTree]: {
+          ...trees[selectedTree],
+          customPositions: newPositions
+        }
+      };
+      localStorage.setItem('trees', JSON.stringify(updatedTrees));
+    }
+  });
   
   const [movingNode, setMovingNode] = useState(null);
   const [connectingNode, setConnectingNode] = useState(null);
-  const [viewMode, setViewMode] = useState('canvas');
-  const [importLoading, setImportLoading] = useState(false);
-  const [dfsScroll, setDfsScroll] = useState(0);
-  const dfsViewRef = useRef(null); // Ref for DfsTextView
 
-  // Modal chọn cây khi vào Canvas/DFS
-  const [showTreeSelector, setShowTreeSelector] = useState(false);
-  // Khi chuyển sang canvas/dfs và có nhiều cây, hiện modal chọn cây
+  // ENHANCED: Initial data load with first-time user detection
   useEffect(() => {
-    if ((viewMode === 'canvas' || viewMode === 'dfs') && Object.keys(trees).length > 1) {
-      setShowTreeSelector(true);
-    } else {
-      setShowTreeSelector(false);
-    }
-  }, [viewMode, trees]);
-
-  // Khôi phục dữ liệu từ localStorage khi khởi động
-  useEffect(() => {
-    const savedData = localStorage.getItem('treeData');
-    if (savedData) {
+    console.log('🚀 Initial data load effect');
+    
+    const checkAndLoadData = async () => {
+      setIsLoading(true);
+      
+      // Check if user has used the app before
+      const hasUsedBefore = localStorage.getItem('hasUsedTreeApp');
+      const savedTrees = localStorage.getItem('trees');
+      
+      if (!hasUsedBefore || !savedTrees) {
+        console.log('👋 First time user detected');
+        setIsFirstTimeUser(true);
+        setIsLoading(false);
+        return;
+      }
+      
       try {
-        const parsedData = JSON.parse(savedData);
-        if (parsedData.nodes && parsedData.nodes.root) {
-          importJsonData(parsedData);
+        const parsedTrees = JSON.parse(savedTrees);
+        if (parsedTrees && typeof parsedTrees === 'object' && Object.keys(parsedTrees).length > 0) {
+          console.log('📁 Restored trees from localStorage:', Object.keys(parsedTrees));
+          setTrees(parsedTrees);
+          
+          // Auto-select first tree
+          const firstTreeName = Object.keys(parsedTrees)[0];
+          setSelectedTree(firstTreeName);
+          console.log('🎯 Auto-selected first tree:', firstTreeName);
+          
+          setIsFirstTimeUser(false);
+        } else {
+          console.log('📁 Invalid localStorage data, treating as first time user');
+          setIsFirstTimeUser(true);
         }
       } catch (e) {
-        console.error('Lỗi khi khôi phục dữ liệu từ localStorage:', e);
+        console.error('❌ Parse error:', e);
+        setIsFirstTimeUser(true);
       }
-    }
-  }, [importJsonData]);
+      
+      setIsLoading(false);
+    };
+    
+    checkAndLoadData();
+  }, []);
 
   // Multi-file import handler
   const handleJsonImport = useCallback(async (importedTrees) => {
-    // importedTrees: [{ fileName, data }]
+    console.log('📥 Import started:', importedTrees);
+    
     if (!Array.isArray(importedTrees)) return;
-    setIsLoading(true);
-    const newTrees = { ...trees };
+    
+    setImportLoading(true);
+    const newTrees = {};
+    
     importedTrees.forEach(item => {
       if (item.fileName && item.data && item.data.nodes && item.data.nodes.root) {
         newTrees[item.fileName] = item.data;
       }
     });
-    setTrees(newTrees);
-    // Nếu chưa chọn cây nào thì chọn cây đầu tiên
-    if (!selectedTree && importedTrees.length > 0) {
-      setSelectedTree(importedTrees[0].fileName);
+    
+    if (Object.keys(newTrees).length > 0) {
+      setTrees(newTrees);
+      localStorage.setItem('trees', JSON.stringify(newTrees));
+      
+      // Mark as no longer first time user
+      localStorage.setItem('hasUsedTreeApp', 'true');
+      
+      // Auto-select first imported tree
+      const firstImportedTree = Object.keys(newTrees)[0];
+      setSelectedTree(firstImportedTree);
+      
+      // Exit first time user mode
+      setIsFirstTimeUser(false);
+      
+      console.log('✅ Import successful:', Object.keys(newTrees));
+      alert(`✅ Import thành công ${Object.keys(newTrees).length} file JSON!`);
     }
-    setIsLoading(false);
-    alert('✅ Import nhiều file JSON thành công!');
-  }, [trees, selectedTree]);
+    
+    setImportLoading(false);
+  }, []);
 
-  // Mouse event handlers
-  const handleMouseMove = useCallback((e) => {
-    if (dragState.isDragging) {
-      updateDrag(e);
+  // CRUD operations
+  const handleAddNode = useCallback((fileName, parentId, text) => {
+    console.log('➕ Add node:', { fileName, parentId, text });
+    
+    setTrees(prev => {
+      const tree = prev[fileName];
+      if (!tree || !tree.nodes[parentId]) return prev;
+      
+      const newId = `node_${Date.now()}_${Math.floor(Math.random()*10000)}`;
+      const updated = {
+        ...prev,
+        [fileName]: {
+          ...tree,
+          nodes: {
+            ...tree.nodes,
+            [newId]: {
+              text: text.trim(),
+              cha: parentId,
+              con: []
+            },
+            [parentId]: {
+              ...tree.nodes[parentId],
+              con: [...tree.nodes[parentId].con, newId]
+            }
+          }
+        }
+      };
+      
+      localStorage.setItem('trees', JSON.stringify(updated));
+      return updated;
+    });
+    
+    return true;
+  }, []);
+
+  const handleEditNode = useCallback((fileName, nodeId, newText) => {
+    console.log('✏️ Edit node:', { fileName, nodeId, newText: newText.substring(0, 50) + '...' });
+    
+    setTrees(prev => {
+      const tree = prev[fileName];
+      if (!tree || !tree.nodes[nodeId]) return prev;
+      
+      const updated = {
+        ...prev,
+        [fileName]: {
+          ...tree,
+          nodes: {
+            ...tree.nodes,
+            [nodeId]: {
+              ...tree.nodes[nodeId],
+              text: newText.trim()
+            }
+          }
+        }
+      };
+      
+      localStorage.setItem('trees', JSON.stringify(updated));
+      return updated;
+    });
+    
+    return true;
+  }, []);
+
+  const handleMoveNode = useCallback((fileName, nodeId, newParentId) => {
+    console.log('🔄 Move node:', { fileName, nodeId, newParentId });
+    
+    if (nodeId === newParentId || nodeId === 'root') return false;
+    
+    setTrees(prev => {
+      const tree = prev[fileName];
+      if (!tree || !tree.nodes[nodeId] || !tree.nodes[newParentId]) return prev;
+      
+      // Remove from old parent
+      const oldParentId = tree.nodes[nodeId].cha;
+      let newNodes = { ...tree.nodes };
+      
+      if (oldParentId && newNodes[oldParentId]) {
+        newNodes[oldParentId] = {
+          ...newNodes[oldParentId],
+          con: newNodes[oldParentId].con.filter(id => id !== nodeId)
+        };
+      }
+      
+      // Add to new parent
+      newNodes[newParentId] = {
+        ...newNodes[newParentId],
+        con: [...newNodes[newParentId].con, nodeId]
+      };
+      
+      // Update node's parent
+      newNodes[nodeId] = {
+        ...newNodes[nodeId],
+        cha: newParentId
+      };
+      
+      const updated = {
+        ...prev,
+        [fileName]: {
+          ...tree,
+          nodes: newNodes
+        }
+      };
+      
+      localStorage.setItem('trees', JSON.stringify(updated));
+      return updated;
+    });
+    
+    return true;
+  }, []);
+
+  const handleDeleteNode = useCallback((fileName, nodeId) => {
+    console.log('🗑️ Delete node:', { fileName, nodeId });
+    
+    if (nodeId === 'root') return false;
+    
+    setTrees(prev => {
+      const tree = prev[fileName];
+      if (!tree || !tree.nodes[nodeId]) return prev;
+      
+      // Recursive delete
+      const deleteRecursive = (nodes, id) => {
+        const node = nodes[id];
+        if (!node) return;
+        
+        if (node.con && node.con.length > 0) {
+          node.con.forEach(childId => deleteRecursive(nodes, childId));
+        }
+        delete nodes[id];
+      };
+      
+      let newNodes = { ...tree.nodes };
+      deleteRecursive(newNodes, nodeId);
+      
+      // Remove from all parents
+      Object.keys(newNodes).forEach(id => {
+        if (newNodes[id].con) {
+          newNodes[id] = {
+            ...newNodes[id],
+            con: newNodes[id].con.filter(cid => cid !== nodeId)
+          };
+        }
+      });
+      
+      const updated = {
+        ...prev,
+        [fileName]: {
+          ...tree,
+          nodes: newNodes
+        }
+      };
+      
+      localStorage.setItem('trees', JSON.stringify(updated));
+      return updated;
+    });
+    
+    return true;
+  }, []);
+
+  // Helper functions
+  const handleIsNodeDisconnected = useCallback((fileName, nodeId) => {
+    const tree = trees[fileName];
+    return tree?.disconnectedNodes?.includes(nodeId) || false;
+  }, [trees]);
+
+  const handleDragStart = useCallback((nodeId, mouseEvent, currentPosition) => {
+    startDrag(nodeId, mouseEvent, currentPosition);
+  }, [startDrag]);
+
+  const handleSetViewMode = useCallback((mode) => {
+    if (viewMode === 'dfs' && mode !== 'dfs' && dfsViewRef.current?.getScrollPosition) {
+      setDfsScroll(dfsViewRef.current.getScrollPosition());
     }
+    setViewMode(mode);
+  }, [viewMode]);
+
+  // Mouse events
+  const handleMouseMove = useCallback((e) => {
+    if (dragState.isDragging) updateDrag(e);
   }, [dragState.isDragging, updateDrag]);
 
   const handleMouseUp = useCallback((e) => {
-    if (dragState.isDragging) {
-      endDrag();
-    }
+    if (dragState.isDragging) endDrag();
   }, [dragState.isDragging, endDrag]);
 
-  // Add mouse event listeners for canvas mode
   useEffect(() => {
     if (viewMode === 'canvas' && dragState.isDragging) {
       document.addEventListener('mousemove', handleMouseMove);
@@ -176,175 +488,60 @@ function App() {
     }
   }, [viewMode, dragState.isDragging, handleMouseMove, handleMouseUp]);
 
-  // Handle auto-layout trigger after import
-  useEffect(() => {
-    if (shouldTriggerAutoLayout) {
-      const nodesToClear = Object.keys(currentTree?.nodes || {}).filter(nodeId => 
-        !currentTree?.customPositions[nodeId] || Object.keys(currentTree?.customPositions || {}).length === 0
-      );
-      
-      if (nodesToClear.length > 0) {
-        const clearedPositions = { ...currentTree?.customPositions };
-        nodesToClear.forEach(nodeId => {
-          delete clearedPositions[nodeId];
-        });
-        updateCustomPositions(clearedPositions);
-      }
-      
-      clearAutoLayoutTrigger();
+  // Tree selector handlers
+  const handleShowTreeSelector = () => {
+    if (Object.keys(trees).length > 1) {
+      setShowTreeSelector(true);
     }
-  }, [shouldTriggerAutoLayout, currentTree?.nodes, currentTree?.customPositions, updateCustomPositions, clearAutoLayoutTrigger]);
+  };
 
-  // Handle operations
-  const handleAddNode = useCallback(async (parentId, text) => {
-    try {
-      const success = addNode(parentId, text);
-      if (success) {
-        const updatedData = { nodes: { ...currentTree?.nodes }, disconnectedNodes: currentTree?.disconnectedNodes };
-        localStorage.setItem('treeData', JSON.stringify(updatedData));
-      }
-      if (!success) alert('Không thể thêm node mới');
-      return success;
-    } catch (error) {
-      console.error('Error adding node:', error);
-      alert('Có lỗi khi thêm node mới');
-      return false;
-    }
-  }, [addNode, currentTree?.nodes, currentTree?.disconnectedNodes]);
+  const handleSelectTree = (fileName) => {
+    setSelectedTree(fileName);
+    setShowTreeSelector(false);
+  };
 
-  const handleEditNode = useCallback(async (nodeId, newText) => {
-    try {
-      const success = updateNodeText(nodeId, newText);
-      if (success) {
-        const updatedData = { nodes: { ...currentTree?.nodes }, disconnectedNodes: currentTree?.disconnectedNodes };
-        localStorage.setItem('treeData', JSON.stringify(updatedData));
-      }
-      if (!success) alert('Không thể cập nhật node');
-      return success;
-    } catch (error) {
-      console.error('Error editing node:', error);
-      alert('Có lỗi khi sửa node');
-      return false;
-    }
-  }, [updateNodeText, currentTree?.nodes, currentTree?.disconnectedNodes]);
-
-  const handleMoveNode = useCallback((nodeId, newParentId = null) => {
-    try {
-      if (nodeId === null) {
-        setMovingNode(null);
-        return true;
-      }
-      if (newParentId === null) {
-        setMovingNode(nodeId);
-        return true;
-      }
-      const success = moveNode(nodeId, newParentId);
-      if (success) {
-        setMovingNode(null);
-        const updatedData = { nodes: { ...currentTree?.nodes }, disconnectedNodes: currentTree?.disconnectedNodes };
-        localStorage.setItem('treeData', JSON.stringify(updatedData));
-      } else {
-        alert('Không thể di chuyển node này! Kiểm tra xem có tạo vòng lặp không.');
-      }
-      return success;
-    } catch (error) {
-      console.error('Error moving node:', error);
-      alert('Có lỗi khi di chuyển node');
-      setMovingNode(null);
-      return false;
-    }
-  }, [moveNode, currentTree?.nodes, currentTree?.disconnectedNodes]);
-
-  const handleDisconnectNode = useCallback((nodeId) => {
-    try {
-      const nodeText = currentTree?.nodes[nodeId]?.text?.substring(0, 50) + '...' || 'Unknown';
-      if (window.confirm(`Bạn có chắc chắn muốn ngắt kết nối node "${nodeText}" khỏi parent không?`)) {
-        const success = disconnectNode(nodeId);
-        if (success) {
-          const updatedData = { nodes: { ...currentTree?.nodes }, disconnectedNodes: currentTree?.disconnectedNodes };
-          localStorage.setItem('treeData', JSON.stringify(updatedData));
-        }
-        if (!success) alert('Không thể ngắt kết nối node này');
-        return success;
-      }
-      return false;
-    } catch (error) {
-      console.error('Error disconnecting node:', error);
-      alert('Có lỗi khi ngắt kết nối node');
-      return false;
-    }
-  }, [disconnectNode, currentTree?.nodes, currentTree?.disconnectedNodes]);
-
-  const handleConnectNode = useCallback((nodeId, targetId = null) => {
-    try {
-      if (targetId === null) {
-        setConnectingNode(nodeId);
-        return true;
-      }
-      const success = connectNode(nodeId, targetId);
-      if (success) {
-        setConnectingNode(null);
-        const updatedData = { nodes: { ...currentTree?.nodes }, disconnectedNodes: currentTree?.disconnectedNodes };
-        localStorage.setItem('treeData', JSON.stringify(updatedData));
-      } else {
-        alert('Không thể kết nối node này! Kiểm tra xem có tạo vòng lặp không.');
-      }
-      return success;
-    } catch (error) {
-      console.error('Error connecting node:', error);
-      alert('Có lỗi khi kết nối node');
-      setConnectingNode(null);
-      return false;
-    }
-  }, [connectNode, currentTree?.nodes, currentTree?.disconnectedNodes]);
-
-  const handleDeleteNode = useCallback((nodeId) => {
-    try {
-      const nodeText = currentTree?.nodes[nodeId]?.text?.substring(0, 50) + '...' || 'Unknown';
-      if (window.confirm(`Bạn có chắc chắn muốn xóa hoàn toàn node "${nodeText}" và tất cả node con không?`)) {
-        const success = deleteNode(nodeId);
-        if (success) {
-          const updatedData = { nodes: { ...currentTree?.nodes }, disconnectedNodes: currentTree?.disconnectedNodes };
-          localStorage.setItem('treeData', JSON.stringify(updatedData));
-        }
-        if (!success) alert('Không thể xóa node này');
-        return success;
-      }
-      return false;
-    } catch (error) {
-      console.error('Error deleting node:', error);
-      alert('Có lỗi khi xóa node');
-      return false;
-    }
-  }, [deleteNode, currentTree?.nodes, currentTree?.disconnectedNodes]);
-
-  const handleDragStart = useCallback((nodeId, mouseEvent, currentPosition) => {
-    startDrag(nodeId, mouseEvent, currentPosition);
-  }, [startDrag]);
-
-  // Enhanced setViewMode to save DFS scroll before switching away
-  const handleSetViewMode = useCallback((mode) => {
-    if (viewMode === 'dfs' && mode !== 'dfs' && dfsViewRef.current && dfsViewRef.current.getScrollPosition) {
-      setDfsScroll(dfsViewRef.current.getScrollPosition());
-    }
-    setViewMode(mode);
-  }, [viewMode]);
-
-  if (treeLoading && !importLoading) {
+  // Loading screen
+  if (isLoading) {
     return (
       <div className="tree-hierarchy" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '20px' }}>
         <Loader className="w-12 h-12 animate-spin text-blue-600" />
-        <div className="text-lg font-semibold text-gray-700">Đang tải dữ liệu...</div>
+        <div className="text-lg font-semibold text-gray-700">Đang khởi động ứng dụng...</div>
         <div className="text-sm text-gray-500">Vui lòng đợi trong giây lát</div>
       </div>
     );
   }
 
+  // First time user screen
+  if (isFirstTimeUser) {
+    return <WelcomeScreen onImport={handleJsonImport} isLoading={importLoading} />;
+  }
+
+  // No valid data screen (fallback)
+  if (!currentTree || !currentTree.nodes || !currentTree.nodes.root) {
+    return (
+      <div className="tree-hierarchy" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '20px' }}>
+        <div className="text-lg font-semibold text-gray-700">Dữ liệu cây bị lỗi</div>
+        <div className="text-sm text-gray-500">Vui lòng import lại file JSON</div>
+        <JsonImporter 
+          onImport={handleJsonImport}
+          isLoading={importLoading}
+          currentData={{ trees, selectedTree }}
+          hideButtons={false}
+        />
+      </div>
+    );
+  }
+
+  console.log('✅ Rendering main UI with tree:', selectedTree, 'nodes:', Object.keys(currentTree.nodes).length);
+
   return (
     <div className="tree-hierarchy">
       <div className="tree-header">
-        <h1 className="tree-title">Cây Phân Cấp Tương Tác - 3 View Modes</h1>
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
+        <h1 className="tree-title">🌳 Tree Hierarchy Manager</h1>
+        
+        {/* Import button only */}
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
+          {/* Import more files button */}
           <JsonImporter 
             onImport={handleJsonImport}
             isLoading={importLoading}
@@ -352,6 +549,8 @@ function App() {
             hideButtons={true}
           />
         </div>
+
+        {/* View mode buttons */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', justifyContent: 'center' }}>
           <div style={{ display: 'flex', background: '#f3f4f6', borderRadius: '8px', padding: '4px', gap: '4px' }}>
             <button
@@ -393,91 +592,101 @@ function App() {
             </button>
           </div>
         </div>
+
+        {/* File count indicator */}
+        {Object.keys(trees).length > 0 && (
+          <div style={{ 
+            textAlign: 'center', 
+            fontSize: '12px', 
+            color: '#9ca3af',
+            marginBottom: '8px'
+          }}>
+            📁 {Object.keys(trees).length} file(s) • {Object.keys(currentTree.nodes).length} node(s) • Hiện tại: <strong>{selectedTree}</strong>
+          </div>
+        )}
       </div>
 
-      {/* TreeView: truyền toàn bộ trees, các view khác chỉ truyền cây được chọn */}
-      {viewMode === 'dfs' ? (
-        <DfsTextView
-          ref={dfsViewRef}
-          nodes={currentTree?.nodes || {}}
-          disconnectedNodes={currentTree?.disconnectedNodes || []}
-          isNodeDisconnected={isNodeDisconnected}
-          dfsOrder={dfsOrder}
-          onEditNode={handleEditNode}
-          dfsScroll={dfsScroll}
-          setDfsScroll={setDfsScroll}
-          trees={trees}
-          selectedTree={selectedTree}
-          setSelectedTree={setSelectedTree}
-        />
-      ) : viewMode === 'canvas' ? (
-        <TreeCanvas
-          nodes={currentTree?.nodes || {}}
-          positions={positions}
-          canvasSize={canvasSize}
-          dragState={dragState}
-          onDragStart={handleDragStart}
-          movingNode={movingNode}
-          connectingNode={connectingNode}
-          disconnectedNodes={currentTree?.disconnectedNodes || []}
-          onAddNode={handleAddNode}
-          onEditNode={handleEditNode}
-          onMoveNode={handleMoveNode}
-          onDeleteNode={handleDeleteNode}
-          onDisconnectNode={handleDisconnectNode}
-          onConnectNode={handleConnectNode}
-          isNodeDisconnected={isNodeDisconnected}
-        />
-      ) : viewMode === 'tree' ? (
-        <TreeView
-          trees={trees}
-          // truyền thêm các props cần thiết nếu TreeView cần
-        />
-      ) : null}
-
-      {movingNode && (
-        <div className="moving-notification">
-          <p className="moving-notification-title">
-            Đang di chuyển logic: {currentTree?.nodes[movingNode]?.text?.substring(0, 40) || 'Unknown'}...
-          </p>
-          <p className="moving-notification-text">
-            Click vào node đích để thay đổi parent, hoặc click nút ✕ để hủy
-          </p>
-        </div>
-      )}
-
-      {currentTree?.disconnectedNodes.length > 0 && (
-        <div style={{
-          position: 'fixed',
-          bottom: '20px',
-          left: '20px',
-          background: '#fef3c7',
-          border: '2px solid #f59e0b',
-          borderRadius: '8px',
-          padding: '12px 16px',
-          zIndex: 1000,
-          fontSize: '13px',
-          color: '#92400e',
-          maxWidth: '300px',
-          boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
-        }}>
-          <div style={{ fontWeight: '600', marginBottom: '4px' }}>
-            ⚡ {currentTree?.disconnectedNodes.length} node bị ngắt kết nối:
+      {/* Render views */}
+      <div style={{ flex: 1, overflow: 'hidden' }}>
+        {viewMode === 'dfs' ? (
+          <div style={{ 
+            flex: 1, 
+            height: '100%',
+            border: '2px solid #e5e7eb',
+            borderRadius: '1rem',
+            background: 'white',
+            overflow: 'hidden', // Let DfsTextView handle its own scrolling
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            <DfsTextView
+              ref={dfsViewRef}
+              nodes={currentTree.nodes}
+              disconnectedNodes={currentTree.disconnectedNodes || []}
+              dfsOrder={dfsOrder}
+              onEditNode={handleEditNode}
+              dfsScroll={dfsScroll}
+              setDfsScroll={setDfsScroll}
+              trees={trees}
+              selectedTree={selectedTree}
+              setSelectedTree={setSelectedTree}
+              isNodeDisconnected={handleIsNodeDisconnected}
+            />
           </div>
-          <div style={{ fontSize: '12px' }}>
-            {currentTree?.disconnectedNodes.slice(0, 3).map(nodeId => 
-              currentTree?.nodes[nodeId]?.text?.substring(0, 20) + '...' || 'Unknown'
-            ).join(', ')}
-            {currentTree?.disconnectedNodes.length > 3 && '...'}
+        ) : viewMode === 'canvas' ? (
+          <div className="tree-canvas-container" style={{ 
+            flex: 1, 
+            overflow: 'auto',
+            border: '2px solid #e5e7eb',
+            borderRadius: '1rem',
+            background: 'white',
+            position: 'relative'
+          }}>
+            <TreeCanvas
+              nodes={currentTree.nodes}
+              positions={positions}
+              canvasSize={canvasSize}
+              dragState={dragState}
+              onDragStart={handleDragStart}
+              movingNode={movingNode}
+              connectingNode={connectingNode}
+              disconnectedNodes={currentTree.disconnectedNodes || []}
+              onAddNode={handleAddNode}
+              onEditNode={handleEditNode}
+              onMoveNode={handleMoveNode}
+              onDeleteNode={handleDeleteNode}
+              onDisconnectNode={() => false} // Disabled for now
+              onConnectNode={() => false} // Disabled for now
+              isNodeDisconnected={() => false} // Disabled for now
+            />
           </div>
-        </div>
-      )}
+        ) : viewMode === 'tree' ? (
+          <div style={{ 
+            flex: 1, 
+            height: '100%',
+            overflow: 'auto', // ✅ FIXED: Enable scrolling for TreeView
+            border: '2px solid #e5e7eb',
+            borderRadius: '1rem',
+            background: 'white'
+          }}>
+            <TreeView
+              trees={trees}
+              selectedTree={selectedTree}
+              onEditNode={handleEditNode}
+              onAddNode={handleAddNode}
+              onMoveNode={handleMoveNode}
+              onDeleteNode={handleDeleteNode}
+              isNodeDisconnected={handleIsNodeDisconnected}
+            />
+          </div>
+        ) : null}
+      </div>
 
       {showTreeSelector && (
         <TreeSelectorModal
           trees={trees}
           selectedTree={selectedTree}
-          onSelect={setSelectedTree}
+          onSelect={handleSelectTree}
           onClose={() => setShowTreeSelector(false)}
         />
       )}
