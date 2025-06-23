@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { ChevronRight, ChevronDown, Folder, FolderOpen, Plus, Edit3, Move, Trash2, X, Check, AlertTriangle } from 'lucide-react';
 import EditNodeModal from './EditNodeModal';
 
-const TreeView = ({ trees, selectedTree, onEditNode, onAddNode, onMoveNode, onDeleteNode, isNodeDisconnected }) => {
+const TreeView = ({ trees, selectedTree, onEditNode, onAddNode, onMoveNode, onDeleteNode, isNodeDisconnected, onReorderChildren }) => {
   if (!trees || Object.keys(trees).length === 0) {
     return <div style={{ padding: 24, color: '#6b7280' }}>Chưa có dữ liệu để hiển thị.</div>;
   }
@@ -11,7 +11,7 @@ const TreeView = ({ trees, selectedTree, onEditNode, onAddNode, onMoveNode, onDe
     <div className="tree-view" style={{ 
       width: '100%', 
       height: '100%', 
-      overflow: 'visible', // ✅ Let parent handle overflow
+      overflow: 'visible',
       padding: '16px',
       boxSizing: 'border-box'
     }}>
@@ -28,6 +28,7 @@ const TreeView = ({ trees, selectedTree, onEditNode, onAddNode, onMoveNode, onDe
               onMoveNode={onMoveNode}
               onDeleteNode={onDeleteNode}
               isNodeDisconnected={isNodeDisconnected}
+              onReorderChildren={onReorderChildren}
             />
           )}
         </div>
@@ -36,7 +37,7 @@ const TreeView = ({ trees, selectedTree, onEditNode, onAddNode, onMoveNode, onDe
   );
 };
 
-const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, onDeleteNode, isNodeDisconnected }) => {
+const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, onDeleteNode, isNodeDisconnected, onReorderChildren }) => {
   const [expandedNodes, setExpandedNodes] = useState(new Set(['root']));
   const [showAddForm, setShowAddForm] = useState(null);
   const [newNodeText, setNewNodeText] = useState('');
@@ -45,9 +46,13 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
   const [draggedNode, setDraggedNode] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedNodeId, setSelectedNodeId] = useState(null);
+  
+  // Enhanced drag & drop state
+  const [dropPosition, setDropPosition] = useState(null); // 'before', 'after', 'inside'
+  const [dragPreview, setDragPreview] = useState(null);
   const inputRef = useRef(null);
 
-  // Truncate text helper function - ONLY for display in TreeView
+  // Truncate text helper function
   const truncateTextForTreeView = (text, maxLength = 20) => {
     if (!text || typeof text !== 'string') return '';
     if (text.length <= maxLength) return text;
@@ -65,13 +70,12 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
     setExpandedNodes(newExpanded);
   };
 
-  // Start editing with modal
+  // Modal handlers
   const startEdit = (nodeId) => {
     setSelectedNodeId(nodeId);
     setIsModalOpen(true);
   };
 
-  // Handle modal save - FIXED: Gọi onEditNode với fileName
   const handleModalSave = (nodeId, newText) => {
     if (newText.trim() && onEditNode) {
       const success = onEditNode(fileName, nodeId, newText.trim());
@@ -82,48 +86,112 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
     }
   };
 
-  // Handle modal cancel
   const handleModalCancel = () => {
     setIsModalOpen(false);
     setSelectedNodeId(null);
   };
 
-  // Add node - FIXED: Gọi onAddNode với fileName
+  // Add node
   const addNode = (parentId) => {
     if (newNodeText.trim() && onAddNode) {
       const success = onAddNode(fileName, parentId, newNodeText.trim());
       if (success !== false) {
         setNewNodeText('');
         setShowAddForm(null);
-        // Auto expand parent
         setExpandedNodes(prev => new Set([...prev, parentId]));
       }
     }
   };
 
-  // Start move (button method)
+  // Move operations
   const startMove = (nodeId) => {
     setMovingNode(nodeId);
   };
 
-  // Execute move - FIXED: Gọi onMoveNode với fileName
-  const executeMove = (nodeId, targetId) => {
-    if (nodeId !== targetId && onMoveNode) {
-      const success = onMoveNode(fileName, nodeId, targetId);
-      if (success !== false) {
-        setMovingNode(null);
-        // Auto expand target if it becomes a parent
-        if (nodes[targetId] && nodes[targetId].con) {
+  // ENHANCED: Execute move with reordering support
+  const executeMove = (nodeId, targetId, position = 'inside') => {
+    if (nodeId === targetId || nodeId === 'root') return false;
+    
+    if (position === 'inside') {
+      // Original move to different parent
+      if (onMoveNode) {
+        const success = onMoveNode(fileName, nodeId, targetId);
+        if (success !== false) {
+          setMovingNode(null);
           setExpandedNodes(prev => new Set([...prev, targetId]));
+          return true;
         }
       }
+    } else {
+      // NEW: Reorder within same parent
+      const success = reorderNode(nodeId, targetId, position);
+      if (success) {
+        setMovingNode(null);
+        return true;
+      }
     }
+    return false;
   };
 
-  // Handle delete - FIXED: Gọi onDeleteNode với fileName và confirm
+  // NEW: Reorder nodes within same parent
+  const reorderNode = (draggedNodeId, targetNodeId, position) => {
+    const draggedNode = nodes[draggedNodeId];
+    const targetNode = nodes[targetNodeId];
+    
+    if (!draggedNode || !targetNode) return false;
+    
+    // Must have same parent for reordering
+    if (draggedNode.cha !== targetNode.cha) return false;
+    
+    const parentId = draggedNode.cha;
+    const parent = nodes[parentId];
+    
+    if (!parent || !parent.con) return false;
+    
+    console.log('🔄 Reordering:', { draggedNodeId, targetNodeId, position, parentId });
+    
+    // Create new children array with reordered items
+    const currentChildren = [...parent.con];
+    const draggedIndex = currentChildren.indexOf(draggedNodeId);
+    const targetIndex = currentChildren.indexOf(targetNodeId);
+    
+    if (draggedIndex === -1 || targetIndex === -1) return false;
+    
+    // Remove dragged item
+    currentChildren.splice(draggedIndex, 1);
+    
+    // Calculate new position
+    let newIndex;
+    if (position === 'before') {
+      newIndex = targetIndex > draggedIndex ? targetIndex - 1 : targetIndex;
+    } else { // after
+      newIndex = targetIndex > draggedIndex ? targetIndex : targetIndex + 1;
+    }
+    
+    // Insert at new position
+    currentChildren.splice(newIndex, 0, draggedNodeId);
+    
+    console.log('📋 New order:', currentChildren);
+    
+    // Use the reorder function
+    return handleReorderUpdate(parentId, currentChildren);
+  };
+
+  // Handle reorder update
+  const handleReorderUpdate = (parentId, newChildrenOrder) => {
+    console.log('📝 Updating parent children order:', { parentId, newChildrenOrder });
+    
+    if (onReorderChildren) {
+      return onReorderChildren(fileName, parentId, newChildrenOrder);
+    }
+    
+    console.warn('⚠️ onReorderChildren not available');
+    return false;
+  };
+
+  // Delete handler
   const handleDelete = (nodeId) => {
     if (onDeleteNode) {
-      // Confirm before delete
       const nodeText = nodes[nodeId]?.text || 'Unknown';
       const truncatedText = nodeText.length > 50 ? nodeText.substring(0, 50) + '...' : nodeText;
       
@@ -136,67 +204,115 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
     }
   };
 
-  // Drag and Drop handlers
+  // ENHANCED: Drag and Drop handlers with reordering
   const handleDragStart = (e, nodeId) => {
     if (nodeId === 'root') {
       e.preventDefault();
       return;
     }
     
+    console.log('🎯 Drag start:', nodeId);
     setDraggedNode(nodeId);
     e.dataTransfer.setData('text/plain', nodeId);
     e.dataTransfer.effectAllowed = 'move';
     
     // Add visual feedback
     e.target.style.opacity = '0.5';
+    
+    // Create drag preview
+    setDragPreview({
+      nodeId,
+      text: nodes[nodeId]?.text || 'Unknown'
+    });
   };
 
   const handleDragEnd = (e) => {
+    console.log('🏁 Drag end');
     setDraggedNode(null);
     setDraggedOver(null);
+    setDropPosition(null);
+    setDragPreview(null);
     e.target.style.opacity = '';
   };
 
+  // ENHANCED: Drag over with position detection
   const handleDragOver = (e, targetNodeId) => {
     e.preventDefault();
     
-    // Don't allow drop on self or root if dragging root
-    if (draggedNode === targetNodeId || draggedNode === 'root') {
+    if (!draggedNode || draggedNode === targetNodeId || draggedNode === 'root') {
       e.dataTransfer.dropEffect = 'none';
       return;
     }
 
-    // Don't allow drop on descendants (prevent circular reference)
+    // Prevent dropping on descendants
     if (isDescendant(draggedNode, targetNodeId)) {
       e.dataTransfer.dropEffect = 'none';
       return;
     }
 
+    // Calculate drop position based on mouse Y position
+    const rect = e.currentTarget.getBoundingClientRect();
+    const mouseY = e.clientY;
+    const elementTop = rect.top;
+    const elementHeight = rect.height;
+    const relativeY = mouseY - elementTop;
+    
+    let position = 'inside';
+    
+    // Check if dragged and target have same parent (for reordering)
+    const draggedParent = nodes[draggedNode]?.cha;
+    const targetParent = nodes[targetNodeId]?.cha;
+    
+    if (draggedParent === targetParent && targetNodeId !== 'root') {
+      // Same parent - enable reordering
+      if (relativeY < elementHeight * 0.25) {
+        position = 'before';
+      } else if (relativeY > elementHeight * 0.75) {
+        position = 'after';
+      } else {
+        position = 'inside';
+      }
+    } else {
+      // Different parent - only inside
+      position = 'inside';
+    }
+    
     setDraggedOver(targetNodeId);
+    setDropPosition(position);
     e.dataTransfer.dropEffect = 'move';
+    
+    console.log('🎯 Drag over:', { targetNodeId, position, relativeY, elementHeight });
   };
 
   const handleDragLeave = (e) => {
-    // Only clear if we're actually leaving the node, not just moving to a child
     if (!e.currentTarget.contains(e.relatedTarget)) {
       setDraggedOver(null);
+      setDropPosition(null);
     }
   };
 
+  // ENHANCED: Drop with position handling
   const handleDrop = (e, targetNodeId) => {
     e.preventDefault();
     e.stopPropagation();
     
     const draggedNodeId = e.dataTransfer.getData('text/plain');
     
+    console.log('🎯 Drop:', { draggedNodeId, targetNodeId, dropPosition });
+    
     if (draggedNodeId && draggedNodeId !== targetNodeId && draggedNodeId !== 'root') {
       if (!isDescendant(draggedNodeId, targetNodeId)) {
-        executeMove(draggedNodeId, targetNodeId);
+        const success = executeMove(draggedNodeId, targetNodeId, dropPosition);
+        if (!success) {
+          console.warn('⚠️ Move operation failed');
+        }
       }
     }
     
     setDraggedOver(null);
+    setDropPosition(null);
     setDraggedNode(null);
+    setDragPreview(null);
   };
 
   // Check if nodeA is a descendant of nodeB
@@ -206,7 +322,7 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
     return isDescendant(ancestorId, nodes[nodeId].cha);
   };
 
-  // Get node icon - ALL FOLDERS NOW
+  // Get node icon
   const getNodeIcon = (nodeId, hasChildren, isExpanded, isDisconnected) => {
     if (nodeId === 'root') return <Folder className="w-4 h-4 text-blue-600" />;
     
@@ -216,10 +332,42 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
         <Folder className="w-4 h-4 text-orange-500" />;
     }
     
-    // ALL nodes are folders now - even leaf nodes
     return isExpanded ? 
       <FolderOpen className="w-4 h-4 text-blue-500" /> : 
       <Folder className="w-4 h-4 text-blue-600" />;
+  };
+
+  // ENHANCED: Get drop indicator style
+  const getDropIndicatorStyle = (nodeId) => {
+    if (draggedOver !== nodeId) return {};
+    
+    const baseStyle = {
+      transition: 'all 0.2s ease'
+    };
+    
+    switch (dropPosition) {
+      case 'before':
+        return {
+          ...baseStyle,
+          borderTop: '3px solid #3b82f6',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)'
+        };
+      case 'after':
+        return {
+          ...baseStyle,
+          borderBottom: '3px solid #3b82f6',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)'
+        };
+      case 'inside':
+        return {
+          ...baseStyle,
+          border: '2px solid #3b82f6',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          borderRadius: '4px'
+        };
+      default:
+        return baseStyle;
+    }
   };
 
   // Render tree recursively
@@ -237,7 +385,7 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
 
     return (
       <div key={nodeId} className="tree-node-container">
-        {/* Node row */}
+        {/* ENHANCED: Node row with drop indicators */}
         <div 
           className={`tree-node-row ${isMoving ? 'moving' : ''} ${isDropTarget ? 'drop-target' : ''} ${isDragging ? 'dragging' : ''} ${isDisconnected ? 'disconnected' : ''}`}
           style={{ 
@@ -248,9 +396,8 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
             cursor: draggedNode ? 'grabbing' : 'pointer',
             borderRadius: '4px',
             margin: '2px 4px',
-            transition: 'all 0.2s ease',
             position: 'relative',
-            border: isDropTarget ? '2px solid #3b82f6' : '1px solid transparent'
+            ...getDropIndicatorStyle(nodeId)
           }}
           draggable={!isRoot && !isModalOpen}
           onDragStart={(e) => handleDragStart(e, nodeId)}
@@ -260,10 +407,25 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
           onDrop={(e) => handleDrop(e, nodeId)}
           onClick={() => {
             if (movingNode && movingNode !== nodeId) {
-              executeMove(movingNode, nodeId);
+              executeMove(movingNode, nodeId, 'inside');
             }
           }}
         >
+          {/* Drop position indicator */}
+          {isDropTarget && dropPosition && (
+            <div style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              height: '2px',
+              backgroundColor: '#3b82f6',
+              zIndex: 10,
+              ...(dropPosition === 'before' ? { top: -1 } : {}),
+              ...(dropPosition === 'after' ? { bottom: -1 } : {}),
+              ...(dropPosition === 'inside' ? { display: 'none' } : {})
+            }} />
+          )}
+
           {/* Expand/Collapse button */}
           <div 
             className="expand-button"
@@ -317,9 +479,9 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
                 color: isRoot ? '#1f2937' : isDisconnected ? '#ea580c' : '#374151',
                 userSelect: 'none'
               }}
-              title={node.text} // Show FULL text on hover - CRITICAL for full content
+              title={node.text}
             >
-              {truncateTextForTreeView(node.text, 20)} {/* Truncate ONLY for display */}
+              {truncateTextForTreeView(node.text, 20)}
             </span>
           </div>
 
@@ -516,6 +678,25 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
         onSave={handleModalSave}
         onCancel={handleModalCancel}
       />
+
+      {/* Drag Preview */}
+      {dragPreview && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          pointerEvents: 'none',
+          zIndex: 1000,
+          background: 'rgba(59, 130, 246, 0.9)',
+          color: 'white',
+          padding: '4px 8px',
+          borderRadius: '4px',
+          fontSize: '12px',
+          transform: 'translate(10px, 10px)'
+        }}>
+          📁 {truncateTextForTreeView(dragPreview.text, 15)}
+        </div>
+      )}
     </div>
   );
 };

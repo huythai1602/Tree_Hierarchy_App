@@ -398,6 +398,37 @@ function App() {
     return true;
   }, []);
 
+  // NEW: Handle reordering children within same parent
+  const handleReorderChildren = useCallback((fileName, parentId, newChildrenOrder) => {
+    console.log('📋 Reorder children:', { fileName, parentId, newChildrenOrder });
+    
+    setTrees(prev => {
+      const tree = prev[fileName];
+      if (!tree || !tree.nodes[parentId]) return prev;
+      
+      const newNodes = {
+        ...tree.nodes,
+        [parentId]: {
+          ...tree.nodes[parentId],
+          con: newChildrenOrder
+        }
+      };
+      
+      const updated = {
+        ...prev,
+        [fileName]: {
+          ...tree,
+          nodes: newNodes
+        }
+      };
+      
+      localStorage.setItem('trees', JSON.stringify(updated));
+      return updated;
+    });
+    
+    return true;
+  }, []);
+
   const handleDeleteNode = useCallback((fileName, nodeId) => {
     console.log('🗑️ Delete node:', { fileName, nodeId });
     
@@ -677,6 +708,7 @@ function App() {
               onMoveNode={handleMoveNode}
               onDeleteNode={handleDeleteNode}
               isNodeDisconnected={handleIsNodeDisconnected}
+              onReorderChildren={handleReorderChildren} // ✅ NEW: Add reorder support
             />
           </div>
         ) : null}
