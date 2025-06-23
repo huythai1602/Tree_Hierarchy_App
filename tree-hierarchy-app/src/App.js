@@ -143,6 +143,7 @@ const WelcomeScreen = ({ onImport, isLoading }) => {
             <li>📄 DFS View - Xem nội dung đầy đủ</li>
             <li>✏️ Chỉnh sửa nodes trực tiếp</li>
             <li>🔄 Di chuyển và sắp xếp nodes</li>
+            <li>🔗 Gộp và tách nodes</li>
             <li>💾 Tự động lưu vào localStorage</li>
           </ul>
         </div>
@@ -157,7 +158,7 @@ function App() {
   // Multi-tree state
   const [trees, setTrees] = useState({}); 
   const [selectedTree, setSelectedTree] = useState(null); 
-  const [isLoading, setIsLoading] = useState(true); // Start with loading to check localStorage
+  const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState('canvas');
   const [importLoading, setImportLoading] = useState(false);
   const [dfsScroll, setDfsScroll] = useState(0);
@@ -207,7 +208,7 @@ function App() {
   const [movingNode, setMovingNode] = useState(null);
   const [connectingNode, setConnectingNode] = useState(null);
 
-  // ENHANCED: Initial data load with first-time user detection
+  // Initial data load with first-time user detection
   useEffect(() => {
     console.log('🚀 Initial data load effect');
     
@@ -398,7 +399,7 @@ function App() {
     return true;
   }, []);
 
-  // NEW: Handle reordering children within same parent
+  // Handle reordering children within same parent
   const handleReorderChildren = useCallback((fileName, parentId, newChildrenOrder) => {
     console.log('📋 Reorder children:', { fileName, parentId, newChildrenOrder });
     
@@ -423,6 +424,446 @@ function App() {
       };
       
       localStorage.setItem('trees', JSON.stringify(updated));
+      return updated;
+    });
+    
+    return true;
+  }, []);
+
+  // Handle merging leaf nodes
+  const handleMergeNodes = useCallback((fileName, nodeIds) => {
+    console.log('🔗 handleMergeNodes called:', { fileName, nodeIds });
+    
+    if (nodeIds.length < 2) {
+      console.log('❌ Not enough nodes to merge');
+      return false;
+    }
+    
+    setTrees(prev => {
+      const tree = prev[fileName];
+      if (!tree) {
+        console.log('❌ Tree not found:', fileName);
+        return prev;
+      }
+      
+      console.log('📋 Current tree nodes:', Object.keys(tree.nodes));
+      
+      // Validate all nodes are leaf nodes and have same parent
+      const firstParent = tree.nodes[nodeIds[0]]?.cha;
+      console.log('👨‍👧‍👦 First parent:', firstParent);
+      
+      const allValid = nodeIds.every(nodeId => {
+        const node = tree.nodes[nodeId];
+        const isLeaf = !node.con || node.con.length === 0;
+        const sameParent = node.cha === firstParent;
+        console.log(`✅ Node ${nodeId}: isLeaf=${isLeaf}, sameParent=${sameParent}`);
+        return node && isLeaf && sameParent;
+      });
+      
+      if (!allValid) {
+        console.log('❌ Validation failed');
+        return prev;
+      }
+      
+      // Sort nodes by current order in parent's children array
+      const parentNode = tree.nodes[firstParent];
+      if (!parentNode) {
+        console.log('❌ Parent node not found:', firstParent);
+        return prev;
+      }
+      
+      const sortedNodeIds = nodeIds.sort((a, b) => {
+        const indexA = parentNode.con.indexOf(a);
+        const indexB = parentNode.con.indexOf(b);
+        return indexA - indexB;
+      });
+      
+      console.log('📋 Sorted node IDs:', sortedNodeIds);
+      
+      // Merge content: combine all texts with double newlines
+      const mergedContent = sortedNodeIds
+        .map(nodeId => tree.nodes[nodeId].text)
+        .join('\n\n');
+      
+      console.log('📝 Merged content length:', mergedContent.length);
+      
+      // Create new merged node
+      const mergedNodeId = `merged_${Date.now()}_${Math.floor(Math.random()*10000)}`;
+      
+      // Create new nodes object
+      let newNodes = { ...tree.nodes };
+      
+      // Add merged node with metadata
+      newNodes[mergedNodeId] = {
+        text: mergedContent,
+        cha: firstParent,
+        con: [],
+        // NEW: Store merge metadata for proper splitting
+        mergeMetadata: {
+          originalCount: sortedNodeIds.length,
+          originalTexts: sortedNodeIds.map(nodeId => tree.nodes[nodeId].text),
+          mergedAt: Date.now()
+        }
+      };
+      
+      // Remove original nodes from nodes object
+      sortedNodeIds.forEach(nodeId => {
+        delete newNodes[nodeId];
+      });
+      
+      // Update parent's children array
+      const newParentChildren = parentNode.con.filter(childId => !nodeIds.includes(childId));
+      
+      // Insert merged node at position of first original node
+      const firstNodeIndex = parentNode.con.indexOf(sortedNodeIds[0]);
+      newParentChildren.splice(firstNodeIndex, 0, mergedNodeId);
+      
+      newNodes[firstParent] = {
+        ...newNodes[firstParent],
+        con: newParentChildren
+      };
+      
+      const updated = {
+        ...prev,
+        [fileName]: {
+          ...tree,
+          nodes: newNodes
+        }
+      };
+      
+      localStorage.setItem('trees', JSON.stringify(updated));
+      console.log('✅ Merge completed successfully');
+      return updated;
+    });
+    
+    return true;
+  }, []);
+
+  // NEW: Handle splitting merged nodes
+  const handleSplitNode = useCallback((fileName, nodeId) => {
+    console.log('✂️ handleSplitNode called:', { fileName, nodeId });
+    
+    setTrees(prev => {
+      const tree = prev[fileName];
+      if (!tree) {
+        console.log('❌ Tree not found:', fileName);
+        return prev;
+      }
+      
+      const node = tree.nodes[nodeId];
+      if (!node || !node.text) {
+        console.log('❌ Node not found or no text:', nodeId);
+        return prev;
+      }
+      
+      // Check if node has merge metadata (proper merged node)
+      if (node.mergeMetadata && node.mergeMetadata.originalTexts) {
+        console.log('📋 Splitting merged node using metadata');
+        return splitUsingMetadata(prev, fileName, nodeId, node);
+      } else {
+        // Fallback: split by paragraphs for manually created multi-paragraph nodes
+        console.log('📋 Splitting by paragraphs (fallback)');
+        return splitByParagraphs(prev, fileName, nodeId, node);
+      }
+    });
+    
+    return true;
+  }, []);
+
+  // Helper function: Split using stored metadata
+  const splitUsingMetadata = (trees, fileName, nodeId, node) => {
+    const tree = trees[fileName];
+    const { originalTexts, originalCount } = node.mergeMetadata;
+    
+    console.log('🔄 Splitting into original texts:', originalCount);
+    
+    const parentId = node.cha;
+    const parentNode = tree.nodes[parentId];
+    
+    if (!parentNode) {
+      console.log('❌ Parent node not found');
+      return trees;
+    }
+    
+    // Create new nodes object
+    let newNodes = { ...tree.nodes };
+    
+    // Update the original node with first original text
+    newNodes[nodeId] = {
+      ...node,
+      text: originalTexts[0].trim(),
+      mergeMetadata: undefined // Remove metadata
+    };
+    
+    // Create new nodes for remaining original texts
+    const newNodeIds = [];
+    originalTexts.slice(1).forEach((originalText, index) => {
+      const newNodeId = `split_${Date.now()}_${index}_${Math.floor(Math.random()*10000)}`;
+      newNodeIds.push(newNodeId);
+      
+      newNodes[newNodeId] = {
+        text: originalText.trim(),
+        cha: parentId,
+        con: []
+      };
+    });
+    
+    // Update parent's children array
+    const currentChildren = [...parentNode.con];
+    const originalIndex = currentChildren.indexOf(nodeId);
+    
+    if (originalIndex !== -1) {
+      currentChildren.splice(originalIndex + 1, 0, ...newNodeIds);
+      newNodes[parentId] = {
+        ...newNodes[parentId],
+        con: currentChildren
+      };
+    }
+    
+    const updated = {
+      ...trees,
+      [fileName]: {
+        ...tree,
+        nodes: newNodes
+      }
+    };
+    
+    localStorage.setItem('trees', JSON.stringify(updated));
+    console.log(`✅ Split completed: ${originalCount} nodes restored`);
+    return updated;
+  };
+
+  // Helper function: Split by paragraphs (fallback)
+  const splitByParagraphs = (trees, fileName, nodeId, node) => {
+    const tree = trees[fileName];
+    
+    // Split by double newlines
+    const paragraphs = node.text.split('\n\n').filter(p => p.trim().length > 0);
+    
+    if (paragraphs.length < 2) {
+      console.log('❌ Node does not contain multiple paragraphs');
+      return trees;
+    }
+    
+    console.log('📋 Splitting into paragraphs:', paragraphs.length);
+    
+    const parentId = node.cha;
+    const parentNode = tree.nodes[parentId];
+    
+    if (!parentNode) {
+      console.log('❌ Parent node not found');
+      return trees;
+    }
+    
+    // Create new nodes object
+    let newNodes = { ...tree.nodes };
+    
+    // Update the original node with first paragraph
+    newNodes[nodeId] = {
+      ...node,
+      text: paragraphs[0].trim()
+    };
+    
+    // Create new nodes for remaining paragraphs
+    const newNodeIds = [];
+    paragraphs.slice(1).forEach((paragraph, index) => {
+      const newNodeId = `split_${Date.now()}_${index}_${Math.floor(Math.random()*10000)}`;
+      newNodeIds.push(newNodeId);
+      
+      newNodes[newNodeId] = {
+        text: paragraph.trim(),
+        cha: parentId,
+        con: []
+      };
+    });
+    
+    // Update parent's children array
+    const currentChildren = [...parentNode.con];
+    const originalIndex = currentChildren.indexOf(nodeId);
+    
+    if (originalIndex !== -1) {
+      currentChildren.splice(originalIndex + 1, 0, ...newNodeIds);
+      newNodes[parentId] = {
+        ...newNodes[parentId],
+        con: currentChildren
+      };
+    }
+    
+    const updated = {
+      ...trees,
+      [fileName]: {
+        ...tree,
+        nodes: newNodes
+      }
+    };
+    
+    localStorage.setItem('trees', JSON.stringify(updated));
+    console.log('✅ Split by paragraphs completed');
+    return updated;
+  };
+
+  // NEW: Handle merging leaf node with parent
+  const handleMergeWithParent = useCallback((fileName, nodeId) => {
+    console.log('⬆️ handleMergeWithParent called:', { fileName, nodeId });
+    
+    setTrees(prev => {
+      const tree = prev[fileName];
+      if (!tree) {
+        console.log('❌ Tree not found:', fileName);
+        return prev;
+      }
+      
+      const node = tree.nodes[nodeId];
+      if (!node) {
+        console.log('❌ Node not found:', nodeId);
+        return prev;
+      }
+      
+      const parentId = node.cha;
+      const parentNode = tree.nodes[parentId];
+      
+      if (!parentNode || parentId === 'root') {
+        console.log('❌ Cannot merge with root or parent not found:', parentId);
+        return prev;
+      }
+      
+      // Check if node is leaf
+      if (node.con && node.con.length > 0) {
+        console.log('❌ Can only merge leaf nodes');
+        return prev;
+      }
+      
+      console.log('🔗 Merging node with parent');
+      
+      // Create new nodes object
+      let newNodes = { ...tree.nodes };
+      
+      // Combine parent and child text
+      const combinedText = parentNode.text + '\n\n' + node.text;
+      
+      // NEW: Enhanced metadata handling for multiple merges
+      const existingMetadata = parentNode.parentMergeMetadata;
+      let newMetadata;
+      
+      if (existingMetadata) {
+        // Parent already has merged children - add this one to the list
+        newMetadata = {
+          originalParentText: existingMetadata.originalParentText, // Keep original parent text
+          mergedChildren: [
+            ...existingMetadata.mergedChildren,
+            {
+              childText: node.text,
+              childId: nodeId,
+              mergedAt: Date.now()
+            }
+          ]
+        };
+      } else {
+        // First merge with this parent
+        newMetadata = {
+          originalParentText: parentNode.text,
+          mergedChildren: [
+            {
+              childText: node.text,
+              childId: nodeId,
+              mergedAt: Date.now()
+            }
+          ]
+        };
+      }
+      
+      // Update parent with combined text and metadata
+      newNodes[parentId] = {
+        ...parentNode,
+        text: combinedText,
+        parentMergeMetadata: newMetadata
+      };
+      
+      // Remove the child node from nodes
+      delete newNodes[nodeId];
+      
+      // Remove child from parent's children array
+      newNodes[parentId] = {
+        ...newNodes[parentId],
+        con: newNodes[parentId].con.filter(childId => childId !== nodeId)
+      };
+      
+      const updated = {
+        ...prev,
+        [fileName]: {
+          ...tree,
+          nodes: newNodes
+        }
+      };
+      
+      localStorage.setItem('trees', JSON.stringify(updated));
+      console.log('✅ Merge with parent completed successfully');
+      return updated;
+    });
+    
+    return true;
+  }, []);
+
+  // NEW: Handle splitting ALL parent-child merged nodes
+  const handleSplitFromParent = useCallback((fileName, nodeId) => {
+    console.log('↙️ handleSplitFromParent called:', { fileName, nodeId });
+    
+    setTrees(prev => {
+      const tree = prev[fileName];
+      if (!tree) {
+        console.log('❌ Tree not found:', fileName);
+        return prev;
+      }
+      
+      const node = tree.nodes[nodeId];
+      if (!node || !node.parentMergeMetadata) {
+        console.log('❌ Node not found or no parent merge metadata:', nodeId);
+        return prev;
+      }
+      
+      const { originalParentText, mergedChildren } = node.parentMergeMetadata;
+      
+      console.log(`🔄 Splitting parent-child merge: ${mergedChildren.length} children`);
+      
+      // Create new nodes object
+      let newNodes = { ...tree.nodes };
+      
+      // Restore parent to original text
+      newNodes[nodeId] = {
+        ...node,
+        text: originalParentText,
+        parentMergeMetadata: undefined // Remove metadata
+      };
+      
+      // Create new child nodes for each merged child
+      const newChildIds = [];
+      mergedChildren.forEach((childData, index) => {
+        const newChildId = `split_child_${Date.now()}_${index}_${Math.floor(Math.random()*10000)}`;
+        newChildIds.push(newChildId);
+        
+        newNodes[newChildId] = {
+          text: childData.childText,
+          cha: nodeId,
+          con: []
+        };
+      });
+      
+      // Add all children to parent's children array
+      newNodes[nodeId] = {
+        ...newNodes[nodeId],
+        con: [...newNodes[nodeId].con, ...newChildIds]
+      };
+      
+      const updated = {
+        ...prev,
+        [fileName]: {
+          ...tree,
+          nodes: newNodes
+        }
+      };
+      
+      localStorage.setItem('trees', JSON.stringify(updated));
+      console.log(`✅ Split from parent completed: restored ${mergedChildren.length} children`);
       return updated;
     });
     
@@ -572,7 +1013,6 @@ function App() {
         
         {/* Import button only */}
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
-          {/* Import more files button */}
           <JsonImporter 
             onImport={handleJsonImport}
             isLoading={importLoading}
@@ -646,7 +1086,7 @@ function App() {
             border: '2px solid #e5e7eb',
             borderRadius: '1rem',
             background: 'white',
-            overflow: 'hidden', // Let DfsTextView handle its own scrolling
+            overflow: 'hidden',
             display: 'flex',
             flexDirection: 'column'
           }}>
@@ -686,16 +1126,16 @@ function App() {
               onEditNode={handleEditNode}
               onMoveNode={handleMoveNode}
               onDeleteNode={handleDeleteNode}
-              onDisconnectNode={() => false} // Disabled for now
-              onConnectNode={() => false} // Disabled for now
-              isNodeDisconnected={() => false} // Disabled for now
+              onDisconnectNode={() => false}
+              onConnectNode={() => false}
+              isNodeDisconnected={() => false}
             />
           </div>
         ) : viewMode === 'tree' ? (
           <div style={{ 
             flex: 1, 
             height: '100%',
-            overflow: 'auto', // ✅ FIXED: Enable scrolling for TreeView
+            overflow: 'auto',
             border: '2px solid #e5e7eb',
             borderRadius: '1rem',
             background: 'white'
@@ -708,7 +1148,11 @@ function App() {
               onMoveNode={handleMoveNode}
               onDeleteNode={handleDeleteNode}
               isNodeDisconnected={handleIsNodeDisconnected}
-              onReorderChildren={handleReorderChildren} // ✅ NEW: Add reorder support
+              onReorderChildren={handleReorderChildren}
+              onMergeNodes={handleMergeNodes}
+              onSplitNode={handleSplitNode}
+              onMergeWithParent={handleMergeWithParent}
+              onSplitFromParent={handleSplitFromParent}
             />
           </div>
         ) : null}
