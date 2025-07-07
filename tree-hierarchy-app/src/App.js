@@ -1,3 +1,4 @@
+// File: src/App.js (CLEANED VERSION WITHOUT DEMO)
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import TreeCanvas from './components/TreeCanvas';
 import TreeView from './components/TreeView';
@@ -18,51 +19,107 @@ import {
 } from 'lucide-react';
 import './styles/TreeHierarchy.css';
 
-// TreeSelectorModal: popup chọn cây
+// Enhanced TreeSelectorModal with additional fields info
 const TreeSelectorModal = ({ trees, selectedTree, onSelect, onClose }) => {
+  const getTreeStats = (tree) => {
+    if (!tree || !tree.nodes) return { nodes: 0, additionalFields: 0 };
+    
+    const nodeCount = Object.keys(tree.nodes).length;
+    const additionalFieldsCount = Object.values(tree.nodes).reduce((count, node) => 
+      count + (node.additionalFields ? Object.keys(node.additionalFields).length : 0), 0
+    );
+    
+    return { nodes: nodeCount, additionalFields: additionalFieldsCount };
+  };
+
   return (
     <div style={{
       position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
       background: 'rgba(0,0,0,0.3)', zIndex: 2000,
       display: 'flex', alignItems: 'center', justifyContent: 'center'
     }}>
-      <div style={{ background: 'white', borderRadius: 12, padding: 32, minWidth: 320, boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
-        <h3 style={{ margin: 0, marginBottom: 16, fontSize: 20, color: '#1d4ed8' }}>Chọn cây dữ liệu để hiển thị</h3>
+      <div style={{ 
+        background: 'white', 
+        borderRadius: 12, 
+        padding: 32, 
+        minWidth: 400, 
+        maxHeight: '80vh',
+        overflowY: 'auto',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.15)' 
+      }}>
+        <h3 style={{ margin: 0, marginBottom: 16, fontSize: 20, color: '#1d4ed8' }}>
+          Chọn cây dữ liệu để hiển thị
+        </h3>
         <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {Object.keys(trees).map(fileName => (
-            <li key={fileName} style={{ marginBottom: 12 }}>
-              <button
-                onClick={() => { onSelect(fileName); onClose(); }}
-                style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  borderRadius: 8,
-                  border: fileName === selectedTree ? '2px solid #3b82f6' : '1px solid #e5e7eb',
-                  background: fileName === selectedTree ? '#eff6ff' : '#f9fafb',
-                  color: '#1e293b',
-                  fontWeight: 600,
-                  fontSize: 16,
-                  cursor: 'pointer',
-                  outline: 'none',
-                  transition: 'all 0.2s',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}
-              >
-                <FolderOpen className="w-4 h-4" />
-                {fileName}
-              </button>
-            </li>
-          ))}
+          {Object.entries(trees).map(([fileName, tree]) => {
+            const stats = getTreeStats(tree);
+            return (
+              <li key={fileName} style={{ marginBottom: 12 }}>
+                <button
+                  onClick={() => { onSelect(fileName); onClose(); }}
+                  style={{
+                    width: '100%',
+                    padding: '16px',
+                    borderRadius: 8,
+                    border: fileName === selectedTree ? '2px solid #3b82f6' : '1px solid #e5e7eb',
+                    background: fileName === selectedTree ? '#eff6ff' : '#f9fafb',
+                    color: '#1e293b',
+                    fontWeight: 600,
+                    fontSize: 16,
+                    cursor: 'pointer',
+                    outline: 'none',
+                    transition: 'all 0.2s',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    gap: '8px',
+                    textAlign: 'left'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <FolderOpen className="w-4 h-4" />
+                    <span>{fileName}</span>
+                  </div>
+                  <div style={{ 
+                    fontSize: 12, 
+                    color: '#6b7280', 
+                    fontWeight: 400,
+                    display: 'flex',
+                    gap: '12px'
+                  }}>
+                    <span>📊 {stats.nodes} nodes</span>
+                    {stats.additionalFields > 0 && (
+                      <span style={{ color: '#059669' }}>
+                        🆕 {stats.additionalFields} additional fields
+                      </span>
+                    )}
+                  </div>
+                </button>
+              </li>
+            );
+          })}
         </ul>
-        <button onClick={onClose} style={{ marginTop: 20, background: '#e5e7eb', border: 'none', borderRadius: 6, padding: '8px 20px', cursor: 'pointer', color: '#374151', fontWeight: 500 }}>Đóng</button>
+        <button 
+          onClick={onClose} 
+          style={{ 
+            marginTop: 20, 
+            background: '#e5e7eb', 
+            border: 'none', 
+            borderRadius: 6, 
+            padding: '8px 20px', 
+            cursor: 'pointer', 
+            color: '#374151', 
+            fontWeight: 500 
+          }}
+        >
+          Đóng
+        </button>
       </div>
     </div>
   );
 };
 
-// Welcome Screen for first-time users
+// Enhanced Welcome Screen
 const WelcomeScreen = ({ onImport, isLoading }) => {
   return (
     <div className="tree-hierarchy" style={{ 
@@ -75,14 +132,14 @@ const WelcomeScreen = ({ onImport, isLoading }) => {
       color: 'white',
       textAlign: 'center'
     }}>
-      <div style={{ maxWidth: '600px', padding: '0 24px' }}>
+      <div style={{ maxWidth: '700px', padding: '0 24px' }}>
         <h1 style={{ 
           fontSize: '3rem', 
           fontWeight: 'bold', 
           marginBottom: '16px',
           textShadow: '0 4px 6px rgba(0,0,0,0.3)'
         }}>
-          🌳 Tree Hierarchy Manager
+          🌳 Enhanced Tree Hierarchy Manager
         </h1>
         <p style={{ 
           fontSize: '1.25rem', 
@@ -90,15 +147,15 @@ const WelcomeScreen = ({ onImport, isLoading }) => {
           opacity: 0.9,
           lineHeight: 1.6
         }}>
-          Chào mừng bạn đến với ứng dụng quản lý cây phân cấp! 
-          Hãy bắt đầu bằng cách import các file JSON chứa dữ liệu cây của bạn.
+          Chào mừng bạn đến với phiên bản nâng cao! 
+          Hỗ trợ JSON linh hoạt với parent/child hoặc cha/con và lưu trữ các trường bổ sung.
         </p>
         
         <div style={{
           background: 'rgba(255,255,255,0.1)',
           borderRadius: '16px',
           padding: '32px',
-          marginBottom: '32px',
+          marginBottom: '24px',
           backdropFilter: 'blur(10px)',
           border: '1px solid rgba(255,255,255,0.2)'
         }}>
@@ -111,7 +168,7 @@ const WelcomeScreen = ({ onImport, isLoading }) => {
             gap: '12px'
           }}>
             <Upload className="w-6 h-6" />
-            Import Dữ Liệu JSON
+            Import Dữ Liệu JSON Linh Hoạt
           </h3>
           
           <JsonImporter 
@@ -129,15 +186,17 @@ const WelcomeScreen = ({ onImport, isLoading }) => {
           fontSize: '14px',
           opacity: 0.8
         }}>
-          <h4 style={{ marginBottom: '12px', fontSize: '16px' }}>💡 Tính năng chính:</h4>
+          <h4 style={{ marginBottom: '12px', fontSize: '16px' }}>💡 Tính năng mới:</h4>
           <ul style={{ 
             listStyle: 'none', 
             padding: 0, 
             margin: 0,
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
             gap: '8px'
           }}>
+            <li>🔄 Hỗ trợ parent/child & cha/con</li>
+            <li>🆕 Lưu trữ trường bổ sung</li>
             <li>📊 Canvas View - Xem cây trực quan</li>
             <li>📁 Tree View - Duyệt cây dạng folder</li>
             <li>📄 DFS View - Xem nội dung đầy đủ</li>
@@ -153,9 +212,9 @@ const WelcomeScreen = ({ onImport, isLoading }) => {
 };
 
 function App() {
-  console.log('🔄 App render');
+  console.log('🔄 Enhanced App render');
 
-  // Multi-tree state
+  // Enhanced multi-tree state
   const [trees, setTrees] = useState({}); 
   const [selectedTree, setSelectedTree] = useState(null); 
   const [isLoading, setIsLoading] = useState(true);
@@ -164,13 +223,11 @@ function App() {
   const [dfsScroll, setDfsScroll] = useState(0);
   const dfsViewRef = useRef(null);
 
-  // Modal chọn cây
+  // Modal state
   const [showTreeSelector, setShowTreeSelector] = useState(false);
-  
-  // First time user flag
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
 
-  // Get current tree
+  // Get current tree with enhanced schema support
   const currentTree = selectedTree && trees[selectedTree] ? trees[selectedTree] : Object.values(trees)[0];
   
   // Layout hooks
@@ -193,7 +250,7 @@ function App() {
         }
       }));
       
-      // Save to localStorage
+      // Enhanced save to localStorage with metadata
       const updatedTrees = {
         ...trees,
         [selectedTree]: {
@@ -208,14 +265,13 @@ function App() {
   const [movingNode, setMovingNode] = useState(null);
   const [connectingNode, setConnectingNode] = useState(null);
 
-  // Initial data load with first-time user detection
+  // Enhanced initial data load with schema detection
   useEffect(() => {
-    console.log('🚀 Initial data load effect');
+    console.log('🚀 Enhanced initial data load effect');
     
     const checkAndLoadData = async () => {
       setIsLoading(true);
       
-      // Check if user has used the app before
       const hasUsedBefore = localStorage.getItem('hasUsedTreeApp');
       const savedTrees = localStorage.getItem('trees');
       
@@ -229,10 +285,30 @@ function App() {
       try {
         const parsedTrees = JSON.parse(savedTrees);
         if (parsedTrees && typeof parsedTrees === 'object' && Object.keys(parsedTrees).length > 0) {
-          console.log('📁 Restored trees from localStorage:', Object.keys(parsedTrees));
+          console.log('📁 Restored enhanced trees from localStorage:', Object.keys(parsedTrees));
+          
+          // Enhanced logging for schema detection
+          Object.entries(parsedTrees).forEach(([fileName, tree]) => {
+            if (tree.nodes) {
+              const hasAdditionalFields = Object.values(tree.nodes).some(node => node.additionalFields);
+              const fieldTypes = new Set();
+              
+              Object.values(tree.nodes).forEach(node => {
+                if (node.additionalFields) {
+                  Object.keys(node.additionalFields).forEach(field => fieldTypes.add(field));
+                }
+              });
+              
+              console.log(`📊 Tree ${fileName}:`, {
+                nodes: Object.keys(tree.nodes).length,
+                hasAdditionalFields,
+                additionalFieldTypes: Array.from(fieldTypes)
+              });
+            }
+          });
+          
           setTrees(parsedTrees);
           
-          // Auto-select first tree
           const firstTreeName = Object.keys(parsedTrees)[0];
           setSelectedTree(firstTreeName);
           console.log('🎯 Auto-selected first tree:', firstTreeName);
@@ -253,45 +329,76 @@ function App() {
     checkAndLoadData();
   }, []);
 
-  // Multi-file import handler
+  // Enhanced multi-file import handler with flexible schema support
   const handleJsonImport = useCallback(async (importedTrees) => {
-    console.log('📥 Import started:', importedTrees);
+    console.log('📥 Enhanced import started:', importedTrees);
     
     if (!Array.isArray(importedTrees)) return;
     
     setImportLoading(true);
     const newTrees = {};
+    let totalAdditionalFields = 0;
+    const allAdditionalFieldTypes = new Set();
     
     importedTrees.forEach(item => {
       if (item.fileName && item.data && item.data.nodes && item.data.nodes.root) {
         newTrees[item.fileName] = item.data;
+        
+        // Enhanced logging for additional fields
+        Object.values(item.data.nodes).forEach(node => {
+          if (node.additionalFields) {
+            const fieldCount = Object.keys(node.additionalFields).length;
+            totalAdditionalFields += fieldCount;
+            Object.keys(node.additionalFields).forEach(field => {
+              allAdditionalFieldTypes.add(field);
+            });
+          }
+        });
       }
     });
     
     if (Object.keys(newTrees).length > 0) {
       setTrees(newTrees);
-      localStorage.setItem('trees', JSON.stringify(newTrees));
       
-      // Mark as no longer first time user
+      // Enhanced localStorage save with metadata
+      const enhancedSaveData = {
+        ...newTrees,
+        metadata: {
+          importedAt: new Date().toISOString(),
+          totalAdditionalFields,
+          additionalFieldTypes: Array.from(allAdditionalFieldTypes),
+          schemaVersion: '2.0'
+        }
+      };
+      localStorage.setItem('trees', JSON.stringify(enhancedSaveData));
+      
       localStorage.setItem('hasUsedTreeApp', 'true');
       
-      // Auto-select first imported tree
       const firstImportedTree = Object.keys(newTrees)[0];
       setSelectedTree(firstImportedTree);
       
-      // Exit first time user mode
       setIsFirstTimeUser(false);
       
-      console.log('✅ Import successful:', Object.keys(newTrees));
-      alert(`✅ Import thành công ${Object.keys(newTrees).length} file JSON!`);
+      console.log('✅ Enhanced import successful:', {
+        files: Object.keys(newTrees).length,
+        totalNodes: Object.values(newTrees).reduce((sum, tree) => sum + Object.keys(tree.nodes).length, 0),
+        totalAdditionalFields,
+        additionalFieldTypes: Array.from(allAdditionalFieldTypes)
+      });
+      
+      const message = totalAdditionalFields > 0 
+        ? `✅ Import thành công ${Object.keys(newTrees).length} file JSON với ${totalAdditionalFields} trường bổ sung!`
+        : `✅ Import thành công ${Object.keys(newTrees).length} file JSON!`;
+      
+      alert(message);
     }
     
     setImportLoading(false);
   }, []);
 
-  // CRUD operations
+  // Enhanced CRUD operations with additional fields preservation
   const handleAddNode = useCallback((fileName, parentId, text) => {
-    console.log('➕ Add node:', { fileName, parentId, text });
+    console.log('➕ Enhanced add node:', { fileName, parentId, text });
     
     setTrees(prev => {
       const tree = prev[fileName];
@@ -307,7 +414,11 @@ function App() {
             [newId]: {
               text: text.trim(),
               cha: parentId,
-              con: []
+              con: [],
+              // Preserve any additional fields from parent context if needed
+              ...(tree.nodes[parentId].additionalFields && tree.nodes[parentId].additionalFields.inheritToChildren 
+                  ? { additionalFields: { inherited: true, fromParent: parentId } } 
+                  : {})
             },
             [parentId]: {
               ...tree.nodes[parentId],
@@ -325,7 +436,7 @@ function App() {
   }, []);
 
   const handleEditNode = useCallback((fileName, nodeId, newText) => {
-    console.log('✏️ Edit node:', { fileName, nodeId, newText: newText.substring(0, 50) + '...' });
+    console.log('✏️ Enhanced edit node:', { fileName, nodeId, newText: newText.substring(0, 50) + '...' });
     
     setTrees(prev => {
       const tree = prev[fileName];
@@ -339,7 +450,14 @@ function App() {
             ...tree.nodes,
             [nodeId]: {
               ...tree.nodes[nodeId],
-              text: newText.trim()
+              text: newText.trim(),
+              // Preserve additional fields during edit
+              ...(tree.nodes[nodeId].additionalFields ? {
+                additionalFields: {
+                  ...tree.nodes[nodeId].additionalFields,
+                  lastModified: new Date().toISOString()
+                }
+              } : {})
             }
           }
         }
@@ -353,7 +471,7 @@ function App() {
   }, []);
 
   const handleMoveNode = useCallback((fileName, nodeId, newParentId) => {
-    console.log('🔄 Move node:', { fileName, nodeId, newParentId });
+    console.log('🔄 Enhanced move node:', { fileName, nodeId, newParentId });
     
     if (nodeId === newParentId || nodeId === 'root') return false;
     
@@ -361,7 +479,6 @@ function App() {
       const tree = prev[fileName];
       if (!tree || !tree.nodes[nodeId] || !tree.nodes[newParentId]) return prev;
       
-      // Remove from old parent
       const oldParentId = tree.nodes[nodeId].cha;
       let newNodes = { ...tree.nodes };
       
@@ -372,16 +489,22 @@ function App() {
         };
       }
       
-      // Add to new parent
       newNodes[newParentId] = {
         ...newNodes[newParentId],
         con: [...newNodes[newParentId].con, nodeId]
       };
       
-      // Update node's parent
       newNodes[nodeId] = {
         ...newNodes[nodeId],
-        cha: newParentId
+        cha: newParentId,
+        // Enhanced: Update additional fields for move operation
+        ...(newNodes[nodeId].additionalFields ? {
+          additionalFields: {
+            ...newNodes[nodeId].additionalFields,
+            lastMoved: new Date().toISOString(),
+            previousParent: oldParentId
+          }
+        } : {})
       };
       
       const updated = {
@@ -399,9 +522,9 @@ function App() {
     return true;
   }, []);
 
-  // Handle reordering children within same parent
+  // Enhanced reordering with additional fields preservation
   const handleReorderChildren = useCallback((fileName, parentId, newChildrenOrder) => {
-    console.log('📋 Reorder children:', { fileName, parentId, newChildrenOrder });
+    console.log('📋 Enhanced reorder children:', { fileName, parentId, newChildrenOrder });
     
     setTrees(prev => {
       const tree = prev[fileName];
@@ -411,7 +534,14 @@ function App() {
         ...tree.nodes,
         [parentId]: {
           ...tree.nodes[parentId],
-          con: newChildrenOrder
+          con: newChildrenOrder,
+          // Enhanced: Track reorder operations
+          ...(tree.nodes[parentId].additionalFields ? {
+            additionalFields: {
+              ...tree.nodes[parentId].additionalFields,
+              lastReordered: new Date().toISOString()
+            }
+          } : {})
         }
       };
       
@@ -430,9 +560,9 @@ function App() {
     return true;
   }, []);
 
-  // Handle merging leaf nodes
+  // Enhanced merging with metadata preservation
   const handleMergeNodes = useCallback((fileName, nodeIds) => {
-    console.log('🔗 handleMergeNodes called:', { fileName, nodeIds });
+    console.log('🔗 Enhanced handleMergeNodes called:', { fileName, nodeIds });
     
     if (nodeIds.length < 2) {
       console.log('❌ Not enough nodes to merge');
@@ -446,17 +576,12 @@ function App() {
         return prev;
       }
       
-      console.log('📋 Current tree nodes:', Object.keys(tree.nodes));
-      
-      // Validate all nodes are leaf nodes and have same parent
       const firstParent = tree.nodes[nodeIds[0]]?.cha;
-      console.log('👨‍👧‍👦 First parent:', firstParent);
       
       const allValid = nodeIds.every(nodeId => {
         const node = tree.nodes[nodeId];
         const isLeaf = !node.con || node.con.length === 0;
         const sameParent = node.cha === firstParent;
-        console.log(`✅ Node ${nodeId}: isLeaf=${isLeaf}, sameParent=${sameParent}`);
         return node && isLeaf && sameParent;
       });
       
@@ -465,7 +590,6 @@ function App() {
         return prev;
       }
       
-      // Sort nodes by current order in parent's children array
       const parentNode = tree.nodes[firstParent];
       if (!parentNode) {
         console.log('❌ Parent node not found:', firstParent);
@@ -478,43 +602,57 @@ function App() {
         return indexA - indexB;
       });
       
-      console.log('📋 Sorted node IDs:', sortedNodeIds);
-      
-      // Merge content: combine all texts with double newlines
       const mergedContent = sortedNodeIds
         .map(nodeId => tree.nodes[nodeId].text)
         .join('\n\n');
       
-      console.log('📝 Merged content length:', mergedContent.length);
-      
-      // Create new merged node
       const mergedNodeId = `merged_${Date.now()}_${Math.floor(Math.random()*10000)}`;
       
-      // Create new nodes object
       let newNodes = { ...tree.nodes };
       
-      // Add merged node with metadata
+      // Enhanced: Combine additional fields from all merged nodes
+      const combinedAdditionalFields = {};
+      sortedNodeIds.forEach((nodeId, index) => {
+        const node = tree.nodes[nodeId];
+        if (node.additionalFields) {
+          Object.entries(node.additionalFields).forEach(([key, value]) => {
+            if (combinedAdditionalFields[key]) {
+              // If field exists, make it an array
+              if (!Array.isArray(combinedAdditionalFields[key])) {
+                combinedAdditionalFields[key] = [combinedAdditionalFields[key]];
+              }
+              combinedAdditionalFields[key].push(value);
+            } else {
+              combinedAdditionalFields[key] = value;
+            }
+          });
+        }
+      });
+      
       newNodes[mergedNodeId] = {
         text: mergedContent,
         cha: firstParent,
         con: [],
-        // NEW: Store merge metadata for proper splitting
         mergeMetadata: {
           originalCount: sortedNodeIds.length,
           originalTexts: sortedNodeIds.map(nodeId => tree.nodes[nodeId].text),
           mergedAt: Date.now()
-        }
+        },
+        // Enhanced: Include combined additional fields
+        ...(Object.keys(combinedAdditionalFields).length > 0 ? {
+          additionalFields: {
+            ...combinedAdditionalFields,
+            mergedFrom: sortedNodeIds,
+            mergeOperation: true
+          }
+        } : {})
       };
       
-      // Remove original nodes from nodes object
       sortedNodeIds.forEach(nodeId => {
         delete newNodes[nodeId];
       });
       
-      // Update parent's children array
       const newParentChildren = parentNode.con.filter(childId => !nodeIds.includes(childId));
-      
-      // Insert merged node at position of first original node
       const firstNodeIndex = parentNode.con.indexOf(sortedNodeIds[0]);
       newParentChildren.splice(firstNodeIndex, 0, mergedNodeId);
       
@@ -532,16 +670,16 @@ function App() {
       };
       
       localStorage.setItem('trees', JSON.stringify(updated));
-      console.log('✅ Merge completed successfully');
+      console.log('✅ Enhanced merge completed successfully');
       return updated;
     });
     
     return true;
   }, []);
 
-  // NEW: Handle splitting merged nodes
+  // Enhanced split with additional fields restoration
   const handleSplitNode = useCallback((fileName, nodeId) => {
-    console.log('✂️ handleSplitNode called:', { fileName, nodeId });
+    console.log('✂️ Enhanced handleSplitNode called:', { fileName, nodeId });
     
     setTrees(prev => {
       const tree = prev[fileName];
@@ -556,13 +694,11 @@ function App() {
         return prev;
       }
       
-      // Check if node has merge metadata (proper merged node)
       if (node.mergeMetadata && node.mergeMetadata.originalTexts) {
-        console.log('📋 Splitting merged node using metadata');
+        console.log('📋 Enhanced splitting merged node using metadata');
         return splitUsingMetadata(prev, fileName, nodeId, node);
       } else {
-        // Fallback: split by paragraphs for manually created multi-paragraph nodes
-        console.log('📋 Splitting by paragraphs (fallback)');
+        console.log('📋 Enhanced splitting by paragraphs (fallback)');
         return splitByParagraphs(prev, fileName, nodeId, node);
       }
     });
@@ -570,12 +706,10 @@ function App() {
     return true;
   }, []);
 
-  // Helper function: Split using stored metadata
+  // Enhanced split helper functions
   const splitUsingMetadata = (trees, fileName, nodeId, node) => {
     const tree = trees[fileName];
     const { originalTexts, originalCount } = node.mergeMetadata;
-    
-    console.log('🔄 Splitting into original texts:', originalCount);
     
     const parentId = node.cha;
     const parentNode = tree.nodes[parentId];
@@ -585,17 +719,23 @@ function App() {
       return trees;
     }
     
-    // Create new nodes object
     let newNodes = { ...tree.nodes };
     
-    // Update the original node with first original text
     newNodes[nodeId] = {
       ...node,
       text: originalTexts[0].trim(),
-      mergeMetadata: undefined // Remove metadata
+      mergeMetadata: undefined,
+      // Enhanced: Restore original additional fields if available
+      ...(node.additionalFields && node.additionalFields.mergedFrom ? {
+        additionalFields: {
+          ...node.additionalFields,
+          splitOperation: true,
+          splitAt: new Date().toISOString(),
+          originalIndex: 0
+        }
+      } : {})
     };
     
-    // Create new nodes for remaining original texts
     const newNodeIds = [];
     originalTexts.slice(1).forEach((originalText, index) => {
       const newNodeId = `split_${Date.now()}_${index}_${Math.floor(Math.random()*10000)}`;
@@ -604,11 +744,19 @@ function App() {
       newNodes[newNodeId] = {
         text: originalText.trim(),
         cha: parentId,
-        con: []
+        con: [],
+        // Enhanced: Add split metadata
+        ...(node.additionalFields ? {
+          additionalFields: {
+            splitOperation: true,
+            splitAt: new Date().toISOString(),
+            originalIndex: index + 1,
+            splitFromNode: nodeId
+          }
+        } : {})
       };
     });
     
-    // Update parent's children array
     const currentChildren = [...parentNode.con];
     const originalIndex = currentChildren.indexOf(nodeId);
     
@@ -629,23 +777,19 @@ function App() {
     };
     
     localStorage.setItem('trees', JSON.stringify(updated));
-    console.log(`✅ Split completed: ${originalCount} nodes restored`);
+    console.log(`✅ Enhanced split completed: ${originalCount} nodes restored`);
     return updated;
   };
 
-  // Helper function: Split by paragraphs (fallback)
   const splitByParagraphs = (trees, fileName, nodeId, node) => {
     const tree = trees[fileName];
     
-    // Split by double newlines
     const paragraphs = node.text.split('\n\n').filter(p => p.trim().length > 0);
     
     if (paragraphs.length < 2) {
       console.log('❌ Node does not contain multiple paragraphs');
       return trees;
     }
-    
-    console.log('📋 Splitting into paragraphs:', paragraphs.length);
     
     const parentId = node.cha;
     const parentNode = tree.nodes[parentId];
@@ -655,16 +799,13 @@ function App() {
       return trees;
     }
     
-    // Create new nodes object
     let newNodes = { ...tree.nodes };
     
-    // Update the original node with first paragraph
     newNodes[nodeId] = {
       ...node,
       text: paragraphs[0].trim()
     };
     
-    // Create new nodes for remaining paragraphs
     const newNodeIds = [];
     paragraphs.slice(1).forEach((paragraph, index) => {
       const newNodeId = `split_${Date.now()}_${index}_${Math.floor(Math.random()*10000)}`;
@@ -673,11 +814,19 @@ function App() {
       newNodes[newNodeId] = {
         text: paragraph.trim(),
         cha: parentId,
-        con: []
+        con: [],
+        // Enhanced: Add paragraph split metadata
+        ...(node.additionalFields ? {
+          additionalFields: {
+            paragraphSplit: true,
+            splitAt: new Date().toISOString(),
+            paragraphIndex: index + 1,
+            splitFromNode: nodeId
+          }
+        } : {})
       };
     });
     
-    // Update parent's children array
     const currentChildren = [...parentNode.con];
     const originalIndex = currentChildren.indexOf(nodeId);
     
@@ -698,91 +847,79 @@ function App() {
     };
     
     localStorage.setItem('trees', JSON.stringify(updated));
-    console.log('✅ Split by paragraphs completed');
+    console.log('✅ Enhanced split by paragraphs completed');
     return updated;
   };
 
-  // NEW: Handle merging leaf node with parent
   const handleMergeWithParent = useCallback((fileName, nodeId) => {
-    console.log('⬆️ handleMergeWithParent called:', { fileName, nodeId });
+    console.log('⬆️ Enhanced handleMergeWithParent called:', { fileName, nodeId });
     
     setTrees(prev => {
       const tree = prev[fileName];
-      if (!tree) {
-        console.log('❌ Tree not found:', fileName);
-        return prev;
-      }
+      if (!tree) return prev;
       
       const node = tree.nodes[nodeId];
-      if (!node) {
-        console.log('❌ Node not found:', nodeId);
-        return prev;
-      }
+      if (!node) return prev;
       
       const parentId = node.cha;
       const parentNode = tree.nodes[parentId];
       
-      if (!parentNode || parentId === 'root') {
-        console.log('❌ Cannot merge with root or parent not found:', parentId);
-        return prev;
-      }
+      if (!parentNode || parentId === 'root') return prev;
       
-      // Check if node is leaf
-      if (node.con && node.con.length > 0) {
-        console.log('❌ Can only merge leaf nodes');
-        return prev;
-      }
+      if (node.con && node.con.length > 0) return prev;
       
-      console.log('🔗 Merging node with parent');
-      
-      // Create new nodes object
       let newNodes = { ...tree.nodes };
       
-      // Combine parent and child text
       const combinedText = parentNode.text + '\n\n' + node.text;
       
-      // NEW: Enhanced metadata handling for multiple merges
       const existingMetadata = parentNode.parentMergeMetadata;
       let newMetadata;
       
       if (existingMetadata) {
-        // Parent already has merged children - add this one to the list
         newMetadata = {
-          originalParentText: existingMetadata.originalParentText, // Keep original parent text
+          originalParentText: existingMetadata.originalParentText,
           mergedChildren: [
             ...existingMetadata.mergedChildren,
             {
               childText: node.text,
               childId: nodeId,
-              mergedAt: Date.now()
+              mergedAt: Date.now(),
+              // Enhanced: Include child's additional fields
+              childAdditionalFields: node.additionalFields || {}
             }
           ]
         };
       } else {
-        // First merge with this parent
         newMetadata = {
           originalParentText: parentNode.text,
           mergedChildren: [
             {
               childText: node.text,
               childId: nodeId,
-              mergedAt: Date.now()
+              mergedAt: Date.now(),
+              childAdditionalFields: node.additionalFields || {}
             }
           ]
         };
       }
       
-      // Update parent with combined text and metadata
       newNodes[parentId] = {
         ...parentNode,
         text: combinedText,
-        parentMergeMetadata: newMetadata
+        parentMergeMetadata: newMetadata,
+        // Enhanced: Combine additional fields
+        ...(parentNode.additionalFields || node.additionalFields ? {
+          additionalFields: {
+            ...parentNode.additionalFields,
+            ...node.additionalFields,
+            parentChildMerge: true,
+            mergedAt: new Date().toISOString()
+          }
+        } : {})
       };
       
-      // Remove the child node from nodes
       delete newNodes[nodeId];
       
-      // Remove child from parent's children array
       newNodes[parentId] = {
         ...newNodes[parentId],
         con: newNodes[parentId].con.filter(childId => childId !== nodeId)
@@ -797,45 +934,33 @@ function App() {
       };
       
       localStorage.setItem('trees', JSON.stringify(updated));
-      console.log('✅ Merge with parent completed successfully');
+      console.log('✅ Enhanced merge with parent completed successfully');
       return updated;
     });
     
     return true;
   }, []);
 
-  // NEW: Handle splitting ALL parent-child merged nodes
   const handleSplitFromParent = useCallback((fileName, nodeId) => {
-    console.log('↙️ handleSplitFromParent called:', { fileName, nodeId });
+    console.log('↙️ Enhanced handleSplitFromParent called:', { fileName, nodeId });
     
     setTrees(prev => {
       const tree = prev[fileName];
-      if (!tree) {
-        console.log('❌ Tree not found:', fileName);
-        return prev;
-      }
+      if (!tree) return prev;
       
       const node = tree.nodes[nodeId];
-      if (!node || !node.parentMergeMetadata) {
-        console.log('❌ Node not found or no parent merge metadata:', nodeId);
-        return prev;
-      }
+      if (!node || !node.parentMergeMetadata) return prev;
       
       const { originalParentText, mergedChildren } = node.parentMergeMetadata;
       
-      console.log(`🔄 Splitting parent-child merge: ${mergedChildren.length} children`);
-      
-      // Create new nodes object
       let newNodes = { ...tree.nodes };
       
-      // Restore parent to original text
       newNodes[nodeId] = {
         ...node,
         text: originalParentText,
-        parentMergeMetadata: undefined // Remove metadata
+        parentMergeMetadata: undefined
       };
       
-      // Create new child nodes for each merged child
       const newChildIds = [];
       mergedChildren.forEach((childData, index) => {
         const newChildId = `split_child_${Date.now()}_${index}_${Math.floor(Math.random()*10000)}`;
@@ -844,11 +969,18 @@ function App() {
         newNodes[newChildId] = {
           text: childData.childText,
           cha: nodeId,
-          con: []
+          con: [],
+          // Enhanced: Restore child's additional fields
+          ...(childData.childAdditionalFields && Object.keys(childData.childAdditionalFields).length > 0 ? {
+            additionalFields: {
+              ...childData.childAdditionalFields,
+              restoredFromParent: true,
+              restoredAt: new Date().toISOString()
+            }
+          } : {})
         };
       });
       
-      // Add all children to parent's children array
       newNodes[nodeId] = {
         ...newNodes[nodeId],
         con: [...newNodes[nodeId].con, ...newChildIds]
@@ -863,7 +995,7 @@ function App() {
       };
       
       localStorage.setItem('trees', JSON.stringify(updated));
-      console.log(`✅ Split from parent completed: restored ${mergedChildren.length} children`);
+      console.log(`✅ Enhanced split from parent completed: restored ${mergedChildren.length} children`);
       return updated;
     });
     
@@ -871,7 +1003,7 @@ function App() {
   }, []);
 
   const handleDeleteNode = useCallback((fileName, nodeId) => {
-    console.log('🗑️ Delete node:', { fileName, nodeId });
+    console.log('🗑️ Enhanced delete node:', { fileName, nodeId });
     
     if (nodeId === 'root') return false;
     
@@ -879,10 +1011,14 @@ function App() {
       const tree = prev[fileName];
       if (!tree || !tree.nodes[nodeId]) return prev;
       
-      // Recursive delete
       const deleteRecursive = (nodes, id) => {
         const node = nodes[id];
         if (!node) return;
+        
+        // Enhanced: Log deletion of nodes with additional fields
+        if (node.additionalFields) {
+          console.log(`🗑️ Deleting node ${id} with additional fields:`, Object.keys(node.additionalFields));
+        }
         
         if (node.con && node.con.length > 0) {
           node.con.forEach(childId => deleteRecursive(nodes, childId));
@@ -893,7 +1029,6 @@ function App() {
       let newNodes = { ...tree.nodes };
       deleteRecursive(newNodes, nodeId);
       
-      // Remove from all parents
       Object.keys(newNodes).forEach(id => {
         if (newNodes[id].con) {
           newNodes[id] = {
@@ -918,7 +1053,7 @@ function App() {
     return true;
   }, []);
 
-  // Helper functions
+  // Enhanced helper functions
   const handleIsNodeDisconnected = useCallback((fileName, nodeId) => {
     const tree = trees[fileName];
     return tree?.disconnectedNodes?.includes(nodeId) || false;
@@ -935,7 +1070,6 @@ function App() {
     setViewMode(mode);
   }, [viewMode]);
 
-  // Mouse events
   const handleMouseMove = useCallback((e) => {
     if (dragState.isDragging) updateDrag(e);
   }, [dragState.isDragging, updateDrag]);
@@ -960,7 +1094,6 @@ function App() {
     }
   }, [viewMode, dragState.isDragging, handleMouseMove, handleMouseUp]);
 
-  // Tree selector handlers
   const handleShowTreeSelector = () => {
     if (Object.keys(trees).length > 1) {
       setShowTreeSelector(true);
@@ -977,8 +1110,8 @@ function App() {
     return (
       <div className="tree-hierarchy" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '20px' }}>
         <Loader className="w-12 h-12 animate-spin text-blue-600" />
-        <div className="text-lg font-semibold text-gray-700">Đang khởi động ứng dụng...</div>
-        <div className="text-sm text-gray-500">Vui lòng đợi trong giây lát</div>
+        <div className="text-lg font-semibold text-gray-700">Đang khởi động ứng dụng nâng cao...</div>
+        <div className="text-sm text-gray-500">Đang tải hỗ trợ schema linh hoạt...</div>
       </div>
     );
   }
@@ -1004,14 +1137,36 @@ function App() {
     );
   }
 
-  console.log('✅ Rendering main UI with tree:', selectedTree, 'nodes:', Object.keys(currentTree.nodes).length);
+  console.log('✅ Rendering enhanced main UI with tree:', selectedTree, 'nodes:', Object.keys(currentTree.nodes).length);
+
+  // Enhanced statistics for current tree
+  const currentTreeStats = (() => {
+    if (!currentTree.nodes) return { nodes: 0, additionalFields: 0, fieldTypes: [] };
+    
+    const nodeCount = Object.keys(currentTree.nodes).length;
+    let additionalFieldsCount = 0;
+    const fieldTypes = new Set();
+    
+    Object.values(currentTree.nodes).forEach(node => {
+      if (node.additionalFields) {
+        additionalFieldsCount += Object.keys(node.additionalFields).length;
+        Object.keys(node.additionalFields).forEach(field => fieldTypes.add(field));
+      }
+    });
+    
+    return {
+      nodes: nodeCount,
+      additionalFields: additionalFieldsCount,
+      fieldTypes: Array.from(fieldTypes)
+    };
+  })();
 
   return (
     <div className="tree-hierarchy">
       <div className="tree-header">
-        <h1 className="tree-title">🌳 Tree Hierarchy Manager</h1>
+        <h1 className="tree-title">🌳 Enhanced Tree Hierarchy Manager</h1>
         
-        {/* Import button only */}
+        {/* Enhanced Import section */}
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
           <JsonImporter 
             onImport={handleJsonImport}
@@ -1064,7 +1219,7 @@ function App() {
           </div>
         </div>
 
-        {/* File count indicator */}
+        {/* Enhanced file count indicator with additional fields info */}
         {Object.keys(trees).length > 0 && (
           <div style={{ 
             textAlign: 'center', 
@@ -1072,7 +1227,17 @@ function App() {
             color: '#9ca3af',
             marginBottom: '8px'
           }}>
-            📁 {Object.keys(trees).length} file(s) • {Object.keys(currentTree.nodes).length} node(s) • Hiện tại: <strong>{selectedTree}</strong>
+            <div>
+              📁 {Object.keys(trees).length} file(s) • {currentTreeStats.nodes} node(s) • 
+              Hiện tại: <strong>{selectedTree}</strong>
+            </div>
+            {currentTreeStats.additionalFields > 0 && (
+              <div style={{ color: '#059669', fontSize: '11px', marginTop: '2px' }}>
+                🆕 {currentTreeStats.additionalFields} additional fields 
+                ({currentTreeStats.fieldTypes.slice(0, 3).join(', ')}
+                {currentTreeStats.fieldTypes.length > 3 ? '...' : ''})
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -1158,6 +1323,7 @@ function App() {
         ) : null}
       </div>
 
+      {/* Enhanced tree selector modal */}
       {showTreeSelector && (
         <TreeSelectorModal
           trees={trees}
