@@ -1,6 +1,6 @@
-// File: src/components/EditNodeModal.js
+// File: src/components/EditNodeModal.js (COMPLETELY FIXED VERSION)
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Save, FileText, Type, Maximize2 } from 'lucide-react';
+import { X, Save, FileText, Type } from 'lucide-react';
 
 const EditNodeModal = ({ isOpen, nodeId, nodeText, onSave, onCancel }) => {
   const [editText, setEditText] = useState('');
@@ -8,15 +8,27 @@ const EditNodeModal = ({ isOpen, nodeId, nodeText, onSave, onCancel }) => {
   const [lineCount, setLineCount] = useState(1);
   const textareaRef = useRef(null);
   
-  // Initialize text when modal opens
+  // CRITICAL FIX: Complete state reset when modal opens/closes or nodeId changes
   useEffect(() => {
-    if (isOpen && nodeText) {
-      setEditText(nodeText);
-      setCharCount(nodeText.length);
-      setLineCount(nodeText.split('\n').length);
+    console.log('🔄 EditNodeModal effect triggered:', { isOpen, nodeId, nodeText });
+    
+    if (isOpen && nodeId) {
+      // FIXED: Always use the current nodeText, handle null/undefined properly
+      const textToEdit = nodeText || '';
+      console.log('📝 Setting edit text to:', textToEdit);
+      
+      setEditText(textToEdit);
+      setCharCount(textToEdit.length);
+      setLineCount(textToEdit ? textToEdit.split('\n').length : 1);
+    } else {
+      // FIXED: Always reset when modal closes or no nodeId
+      console.log('🧹 Resetting modal state');
+      setEditText('');
+      setCharCount(0);
+      setLineCount(1);
     }
-  }, [isOpen, nodeText]);
-  
+  }, [isOpen, nodeId, nodeText]); // CRITICAL: All three dependencies
+
   // Auto-focus and select all when opened
   useEffect(() => {
     if (isOpen && textareaRef.current) {
@@ -37,15 +49,20 @@ const EditNodeModal = ({ isOpen, nodeId, nodeText, onSave, onCancel }) => {
   
   // Handle save
   const handleSave = () => {
-    const trimmedText = editText.trim();
-    if (trimmedText) {
-      onSave(nodeId, trimmedText);
-      setEditText('');
-      setCharCount(0);
-      setLineCount(1);
-    } else {
-      alert('Nội dung không được để trống!');
-    }
+    console.log('💾 Saving node:', nodeId, 'with text:', editText);
+    // Allow saving empty text
+    onSave(nodeId, editText);
+    // Don't reset here - let the parent component handle modal closing
+  };
+  
+  // Handle cancel
+  const handleCancel = () => {
+    console.log('❌ Cancelling edit for node:', nodeId);
+    // Reset state immediately on cancel
+    setEditText('');
+    setCharCount(0);
+    setLineCount(1);
+    onCancel();
   };
   
   // Handle keyboard shortcuts
@@ -58,19 +75,21 @@ const EditNodeModal = ({ isOpen, nodeId, nodeText, onSave, onCancel }) => {
     // Escape to cancel
     else if (e.key === 'Escape') {
       e.preventDefault();
-      onCancel();
+      handleCancel();
     }
   };
   
   // Don't render if not open
   if (!isOpen) return null;
   
+  console.log('🎨 Rendering EditNodeModal:', { nodeId, editText, charCount });
+  
   return (
     <>
       {/* Backdrop */}
       <div 
         className="edit-modal-backdrop"
-        onClick={onCancel}
+        onClick={handleCancel}
         style={{
           position: 'fixed',
           top: 0,
@@ -125,7 +144,7 @@ const EditNodeModal = ({ isOpen, nodeId, nodeText, onSave, onCancel }) => {
             </div>
             
             <button
-              onClick={onCancel}
+              onClick={handleCancel}
               style={{
                 padding: '8px',
                 backgroundColor: 'transparent',
@@ -158,6 +177,9 @@ const EditNodeModal = ({ isOpen, nodeId, nodeText, onSave, onCancel }) => {
           }}>
             <Type className="w-4 h-4" />
             <span>Node ID: <strong>{nodeId}</strong></span>
+            <span style={{ marginLeft: '16px' }}>
+              Current Text: <strong>{nodeText ? `"${nodeText.substring(0, 30)}${nodeText.length > 30 ? '...' : ''}"` : '(Empty)'}</strong>
+            </span>
           </div>
           
           {/* Editor */}
@@ -173,7 +195,7 @@ const EditNodeModal = ({ isOpen, nodeId, nodeText, onSave, onCancel }) => {
               value={editText}
               onChange={handleTextChange}
               onKeyDown={handleKeyDown}
-              placeholder="Nhập nội dung cho node..."
+              placeholder="Nhập nội dung cho node... (có thể để trống)"
               style={{
                 width: '100%',
                 height: '100%',
@@ -222,14 +244,14 @@ const EditNodeModal = ({ isOpen, nodeId, nodeText, onSave, onCancel }) => {
                 color: '#9ca3af',
                 fontStyle: 'italic'
               }}>
-                Ctrl+Enter để lưu • Esc để hủy
+                Ctrl+Enter để lưu • Esc để hủy • Có thể lưu nội dung rỗng
               </span>
             </div>
             
             {/* Actions */}
             <div style={{ display: 'flex', gap: '12px' }}>
               <button
-                onClick={onCancel}
+                onClick={handleCancel}
                 style={{
                   padding: '10px 20px',
                   backgroundColor: '#6b7280',
@@ -253,23 +275,22 @@ const EditNodeModal = ({ isOpen, nodeId, nodeText, onSave, onCancel }) => {
               
               <button
                 onClick={handleSave}
-                disabled={!editText.trim()}
                 style={{
                   padding: '10px 20px',
-                  backgroundColor: editText.trim() ? '#3b82f6' : '#9ca3af',
+                  backgroundColor: '#3b82f6',
                   color: 'white',
                   border: 'none',
                   borderRadius: '8px',
                   fontSize: '14px',
                   fontWeight: '500',
-                  cursor: editText.trim() ? 'pointer' : 'not-allowed',
+                  cursor: 'pointer',
                   transition: 'all 0.2s',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px'
                 }}
-                onMouseEnter={(e) => editText.trim() && (e.target.style.backgroundColor = '#2563eb')}
-                onMouseLeave={(e) => editText.trim() && (e.target.style.backgroundColor = '#3b82f6')}
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#2563eb'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = '#3b82f6'}
               >
                 <Save className="w-4 h-4" />
                 Lưu thay đổi

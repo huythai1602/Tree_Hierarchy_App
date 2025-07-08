@@ -453,10 +453,9 @@ export const useTreeData = () => {
   
   // Enhanced updateNodeText with additional fields preservation
   const updateNodeText = useCallback((nodeId, newText, preserveAdditionalFields = true) => {
-    if (!newText.trim()) return false;
-    
-    const fullText = newText.trim();
-    console.log(`✏️ Updating node ${nodeId} with ${fullText.length} characters`);
+    // FIXED: Allow empty text - don't check for content
+    const fullText = typeof newText === 'string' ? newText.trim() : '';
+    console.log(`✏️ Updating node ${nodeId} with ${fullText.length} characters (allowing empty)`);
     
     setNodes(prev => {
       const existingNode = prev[nodeId];
@@ -464,7 +463,7 @@ export const useTreeData = () => {
         ...prev,
         [nodeId]: {
           ...existingNode,
-          text: fullText,
+          text: fullText, // Allow empty string
           // Preserve additional fields if requested
           ...(preserveAdditionalFields && existingNode.additionalFields ? 
               { additionalFields: existingNode.additionalFields } : {})

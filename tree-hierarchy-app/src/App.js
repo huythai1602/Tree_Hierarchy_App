@@ -436,11 +436,14 @@ function App() {
   }, []);
 
   const handleEditNode = useCallback((fileName, nodeId, newText) => {
-    console.log('✏️ Enhanced edit node:', { fileName, nodeId, newText: newText.substring(0, 50) + '...' });
+    console.log('✏️ Enhanced edit node:', { fileName, nodeId, newText: `"${newText}"`, length: newText.length });
     
     setTrees(prev => {
       const tree = prev[fileName];
-      if (!tree || !tree.nodes[nodeId]) return prev;
+      if (!tree || !tree.nodes[nodeId]) {
+        console.error('❌ Tree or node not found:', { fileName, nodeId });
+        return prev;
+      }
       
       const updated = {
         ...prev,
@@ -450,7 +453,7 @@ function App() {
             ...tree.nodes,
             [nodeId]: {
               ...tree.nodes[nodeId],
-              text: newText.trim(),
+              text: newText, // FIXED: Save text as-is, no trimming here
               // Preserve additional fields during edit
               ...(tree.nodes[nodeId].additionalFields ? {
                 additionalFields: {
@@ -464,6 +467,7 @@ function App() {
       };
       
       localStorage.setItem('trees', JSON.stringify(updated));
+      console.log('💾 Node text updated and saved to localStorage');
       return updated;
     });
     
@@ -790,6 +794,10 @@ function App() {
       console.log('❌ Node does not contain multiple paragraphs');
       return trees;
     }
+
+    // FIXED: Only split if user explicitly requests it for nodes with multiple paragraphs
+    // This should only be called for nodes that user wants to split manually
+    console.log('📋 Manual splitting by paragraphs:', paragraphs.length);
     
     const parentId = node.cha;
     const parentNode = tree.nodes[parentId];

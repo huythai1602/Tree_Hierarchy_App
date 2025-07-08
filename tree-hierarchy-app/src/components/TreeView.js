@@ -1,3 +1,4 @@
+// File: src/components/TreeView.js (FIXED EMPTY NODE EDIT)
 import React, { useState, useRef } from 'react';
 import { ChevronRight, ChevronDown, Folder, FolderOpen, Plus, Edit3, Move, Trash2, X, Check, AlertTriangle } from 'lucide-react';
 import EditNodeModal from './EditNodeModal';
@@ -62,11 +63,11 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
   const [dropPosition, setDropPosition] = useState(null); // 'before', 'after', 'inside'
   const [dragPreview, setDragPreview] = useState(null);
   
-  // NEW: Merge functionality state
+  // Merge functionality state
   const [selectedNodesForMerge, setSelectedNodesForMerge] = useState(new Set());
   const [mergeMode, setMergeMode] = useState(false);
   
-  // NEW: Split functionality state
+  // Split functionality state
   const [splitMode, setSplitMode] = useState(false);
   
   const inputRef = useRef(null);
@@ -78,7 +79,7 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
     return text.substring(0, maxLength - 3) + '...';
   };
 
-  // NEW: Merge functionality
+  // Merge functionality
   const isLeafNode = (nodeId) => {
     const node = nodes[nodeId];
     return node && (!node.con || node.con.length === 0);
@@ -88,27 +89,28 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
     return isLeafNode(nodeId) && nodeId !== 'root';
   };
 
-  // NEW: Check if node was merged (has merge metadata or contains multiple paragraphs)
+  // Check if node was merged (has merge metadata or contains multiple paragraphs)
   const isMergedNode = (nodeId) => {
     const node = nodes[nodeId];
     if (!node || !node.text) return false;
     
+    // FIXED: Only check for ACTUAL merge metadata, not paragraph count
     // Priority 1: Check if node has merge metadata (proper merged node)
     if (node.mergeMetadata && node.mergeMetadata.originalCount) {
       return true;
     }
     
-    // Priority 2: Check if text contains double newlines (indication of merged content)
-    const paragraphs = node.text.split('\n\n').filter(p => p.trim().length > 0);
-    return paragraphs.length > 1;
+    // REMOVED: Automatic detection based on paragraph count
+    // This was causing false positives for normal long content
+    return false;
   };
 
-  // NEW: Get split info for display
+  // Get split info for display - FIXED: Only for actual merged nodes
   const getSplitInfo = (nodeId) => {
     const node = nodes[nodeId];
     if (!node) return null;
     
-    // If has metadata, use original count
+    // FIXED: Only show split info for nodes with actual merge metadata
     if (node.mergeMetadata && node.mergeMetadata.originalCount) {
       return {
         count: node.mergeMetadata.originalCount,
@@ -116,19 +118,12 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
       };
     }
     
-    // Otherwise count paragraphs
-    const paragraphs = node.text.split('\n\n').filter(p => p.trim().length > 0);
-    if (paragraphs.length > 1) {
-      return {
-        count: paragraphs.length,
-        type: 'paragraphs'
-      };
-    }
-    
+    // REMOVED: Automatic paragraph-based split detection
+    // This was causing false positives
     return null;
   };
 
-  // NEW: Check if node can be merged with parent
+  // Check if node can be merged with parent
   const canMergeWithParent = (nodeId) => {
     if (nodeId === 'root') return false;
     
@@ -138,13 +133,13 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
     return node && parent && isLeafNode(nodeId) && node.cha !== 'root';
   };
 
-  // NEW: Check if node was merged with child (has parent merge metadata)
+  // Check if node was merged with child (has parent merge metadata)
   const isMergedWithChild = (nodeId) => {
     const node = nodes[nodeId];
     return node && node.parentMergeMetadata;
   };
 
-  // NEW: Get merged children count
+  // Get merged children count
   const getMergedChildrenCount = (nodeId) => {
     const node = nodes[nodeId];
     if (node && node.parentMergeMetadata && node.parentMergeMetadata.mergedChildren) {
@@ -153,7 +148,7 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
     return 0;
   };
 
-  // NEW: Check if node can be split from parent
+  // Check if node can be split from parent
   const canSplitFromParent = (nodeId) => {
     return isMergedWithChild(nodeId);
   };
@@ -237,7 +232,6 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
       return;
     }
 
-    // ✅ Sửa lỗi: Kiểm tra onMergeNodes trước khi gọi
     if (onMergeNodes && typeof onMergeNodes === 'function') {
       console.log('🚀 Calling onMergeNodes with:', fileName, selectedArray);
       const success = onMergeNodes(fileName, selectedArray);
@@ -256,13 +250,19 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
     }
   };
 
-  // NEW: Split merged node back into separate nodes
+  // Split merged node back into separate nodes - FIXED: Better validation
   const executeSplit = (nodeId) => {
     console.log('✂️ Execute split for node:', nodeId);
     
     const node = nodes[nodeId];
-    if (!node || !isMergedNode(nodeId)) {
-      alert('Node này không thể tách ra!');
+    if (!node || !node.text) {
+      alert('Node này không có nội dung để tách!');
+      return;
+    }
+
+    // FIXED: Only allow splitting nodes with actual merge metadata
+    if (!node.mergeMetadata || !node.mergeMetadata.originalCount) {
+      alert('Node này không phải là node đã được gộp lại!');
       return;
     }
 
@@ -272,25 +272,14 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
       return;
     }
 
-    let confirmMessage;
-    if (splitInfo.type === 'merged') {
-      confirmMessage = `Node này được tạo từ việc gộp ${splitInfo.count} nodes.\n\nBạn có muốn khôi phục về ${splitInfo.count} nodes ban đầu không?`;
-    } else {
-      const paragraphs = node.text.split('\n\n').filter(p => p.trim().length > 0);
-      const preview = paragraphs.map((p, i) => `${i + 1}. ${p.substring(0, 50)}...`).join('\n');
-      confirmMessage = `Node này chứa ${splitInfo.count} đoạn văn:\n\n${preview}\n\nBạn có muốn tách thành ${splitInfo.count} nodes riêng biệt không?`;
-    }
+    const confirmMessage = `Node này được tạo từ việc gộp ${splitInfo.count} nodes.\n\nBạn có muốn khôi phục về ${splitInfo.count} nodes ban đầu không?`;
     
     if (window.confirm(confirmMessage)) {
       if (onSplitNode && typeof onSplitNode === 'function') {
         const success = onSplitNode(fileName, nodeId);
         if (success) {
           setSplitMode(false);
-          if (splitInfo.type === 'merged') {
-            alert(`✅ Đã khôi phục về ${splitInfo.count} nodes ban đầu!`);
-          } else {
-            alert(`✅ Đã tách thành ${splitInfo.count} nodes!`);
-          }
+          alert(`✅ Đã khôi phục về ${splitInfo.count} nodes ban đầu!`);
         } else {
           alert('❌ Không thể tách node này!');
         }
@@ -300,7 +289,7 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
     }
   };
 
-  // NEW: Merge leaf node with its parent
+  // Merge leaf node with its parent
   const executeMergeWithParent = (nodeId) => {
     console.log('🔗 Execute merge with parent for node:', nodeId);
     
@@ -328,7 +317,7 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
     }
   };
 
-  // NEW: Split parent node that was merged with child
+  // Split parent node that was merged with child
   const executeSplitFromParent = (nodeId) => {
     console.log('↙️ Execute split from parent for node:', nodeId);
     
@@ -373,23 +362,28 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
     setExpandedNodes(newExpanded);
   };
 
-  // Modal handlers
+  // FIXED: Modal handlers with proper empty text handling
   const startEdit = (nodeId) => {
+    console.log('🎯 Starting edit for node:', nodeId, 'text:', nodes[nodeId]?.text || '(empty)');
     setSelectedNodeId(nodeId);
     setIsModalOpen(true);
   };
 
   const handleModalSave = (nodeId, newText) => {
-    if (newText.trim() && onEditNode) {
-      const success = onEditNode(fileName, nodeId, newText.trim());
+    console.log('💾 Modal save for node:', nodeId, 'new text:', newText);
+    // Allow saving any text, including empty
+    if (onEditNode) {
+      const success = onEditNode(fileName, nodeId, newText); 
       if (success !== false) {
         setIsModalOpen(false);
         setSelectedNodeId(null);
+        console.log('✅ Edit completed successfully');
       }
     }
   };
 
   const handleModalCancel = () => {
+    console.log('❌ Modal cancelled');
     setIsModalOpen(false);
     setSelectedNodeId(null);
   };
@@ -411,7 +405,7 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
     setMovingNode(nodeId);
   };
 
-  // ENHANCED: Execute move with reordering support
+  // Execute move with reordering support
   const executeMove = (nodeId, targetId, position = 'inside') => {
     if (nodeId === targetId || nodeId === 'root') return false;
     
@@ -426,7 +420,7 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
         }
       }
     } else {
-      // NEW: Reorder within same parent
+      // Reorder within same parent
       const success = reorderNode(nodeId, targetId, position);
       if (success) {
         setMovingNode(null);
@@ -436,7 +430,7 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
     return false;
   };
 
-  // NEW: Reorder nodes within same parent
+  // Reorder nodes within same parent
   const reorderNode = (draggedNodeId, targetNodeId, position) => {
     const draggedNode = nodes[draggedNodeId];
     const targetNode = nodes[targetNodeId];
@@ -507,7 +501,7 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
     }
   };
 
-  // ENHANCED: Drag and Drop handlers with reordering
+  // Drag and Drop handlers with reordering
   const handleDragStart = (e, nodeId) => {
     if (nodeId === 'root') {
       e.preventDefault();
@@ -538,7 +532,7 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
     e.target.style.opacity = '';
   };
 
-  // ENHANCED: Drag over with position detection
+  // Drag over with position detection
   const handleDragOver = (e, targetNodeId) => {
     e.preventDefault();
     
@@ -594,7 +588,7 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
     }
   };
 
-  // ENHANCED: Drop with position handling
+  // Drop with position handling
   const handleDrop = (e, targetNodeId) => {
     e.preventDefault();
     e.stopPropagation();
@@ -640,7 +634,7 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
       <Folder className="w-4 h-4 text-blue-600" />;
   };
 
-  // ENHANCED: Get drop indicator style
+  // Get drop indicator style
   const getDropIndicatorStyle = (nodeId) => {
     if (draggedOver !== nodeId) return {};
     
@@ -686,19 +680,19 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
     const isDragging = draggedNode === nodeId;
     const isDisconnected = isNodeDisconnected ? isNodeDisconnected(fileName, nodeId) : false;
     
-    // NEW: Merge related states
+    // Merge related states
     const canMerge = canMergeNode(nodeId);
     const isSelectedForMerge = selectedNodesForMerge.has(nodeId);
     const isMergeable = mergeMode && canMerge;
     
-    // NEW: Split related states
+    // Split related states
     const isMerged = isMergedNode(nodeId);
     const canSplit = splitMode && isMerged && isLeafNode(nodeId);
     
-    // NEW: Merge with parent related states
+    // Merge with parent related states
     const canMergeParent = canMergeWithParent(nodeId);
     
-    // NEW: Split from parent related states
+    // Split from parent related states
     const isMergedParent = isMergedWithChild(nodeId);
     const canSplitParent = canSplitFromParent(nodeId);
 
@@ -798,26 +792,58 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
           </div>
         )}
 
-        {/* ENHANCED: Node row with merge/split functionality */}
+        {/* Enhanced Node row with clear borders and better visual separation */}
         <div 
           className={`tree-node-row ${isMoving ? 'moving' : ''} ${isDropTarget ? 'drop-target' : ''} ${isDragging ? 'dragging' : ''} ${isDisconnected ? 'disconnected' : ''} ${isSelectedForMerge ? 'selected-for-merge' : ''} ${canSplit ? 'can-split' : ''}`}
           style={{ 
             paddingLeft: `${level * 20 + 8}px`,
-            minHeight: '40px',
+            paddingRight: '8px',
+            paddingTop: '8px',
+            paddingBottom: '8px',
+            minHeight: '44px', // Increased height for better visibility
             display: 'flex',
             alignItems: 'center',
             cursor: draggedNode ? 'grabbing' : (isMergeable ? 'pointer' : (canSplit ? 'pointer' : 'default')),
-            borderRadius: '4px',
+            borderRadius: '8px', // More rounded corners
             margin: '2px 4px',
             position: 'relative',
+            // Enhanced base styling with clear borders
+            border: '1px solid #e5e7eb',
+            backgroundColor: '#ffffff',
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
+            transition: 'all 0.2s ease',
             ...getDropIndicatorStyle(nodeId),
+            // Override with specific states
+            ...(isRoot ? {
+              backgroundColor: '#f0f9ff',
+              border: '2px solid #3b82f6',
+              fontWeight: '600'
+            } : {}),
             ...(isSelectedForMerge ? {
-              backgroundColor: 'rgba(16, 185, 129, 0.2)',
-              border: '2px solid #10b981'
+              backgroundColor: 'rgba(16, 185, 129, 0.15)',
+              border: '2px solid #10b981',
+              boxShadow: '0 2px 8px rgba(16, 185, 129, 0.2)'
             } : {}),
             ...(canSplit ? {
-              backgroundColor: 'rgba(236, 72, 153, 0.2)',
-              border: '2px solid #ec4899'
+              backgroundColor: 'rgba(236, 72, 153, 0.15)',
+              border: '2px solid #ec4899',
+              boxShadow: '0 2px 8px rgba(236, 72, 153, 0.2)'
+            } : {}),
+            ...(isDisconnected ? {
+              backgroundColor: '#fef3c7',
+              border: '2px solid #f59e0b',
+              borderStyle: 'dashed'
+            } : {}),
+            ...(isMoving ? {
+              backgroundColor: '#fef2f2',
+              border: '2px solid #ef4444',
+              transform: 'scale(1.02)',
+              boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
+            } : {}),
+            ...(isDragging ? {
+              opacity: 0.6,
+              transform: 'rotate(2deg)',
+              border: '2px dashed #6b7280'
             } : {})
           }}
           draggable={!isRoot && !isModalOpen && !mergeMode && !splitMode}
@@ -833,6 +859,21 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
               executeSplit(nodeId);
             } else if (movingNode && movingNode !== nodeId) {
               executeMove(movingNode, nodeId, 'inside');
+            }
+          }}
+          // Enhanced hover effects
+          onMouseEnter={(e) => {
+            if (!isDragging && !isMoving && !isSelectedForMerge && !canSplit) {
+              e.target.style.backgroundColor = '#f8fafc';
+              e.target.style.borderColor = '#94a3b8';
+              e.target.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isDragging && !isMoving && !isSelectedForMerge && !canSplit && !isRoot && !isDisconnected) {
+              e.target.style.backgroundColor = '#ffffff';
+              e.target.style.borderColor = '#e5e7eb';
+              e.target.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.05)';
             }
           }}
         >
@@ -851,27 +892,33 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
             }} />
           )}
 
-          {/* Expand/Collapse button */}
+          {/* Enhanced Expand/Collapse button with better styling */}
           <div 
             className="expand-button"
             style={{ 
-              width: '24px', 
-              height: '24px', 
+              width: '28px', 
+              height: '28px', 
               display: 'flex', 
               alignItems: 'center', 
               justifyContent: 'center',
-              borderRadius: '4px',
-              cursor: 'pointer'
+              borderRadius: '6px',
+              cursor: 'pointer',
+              backgroundColor: 'transparent',
+              border: '1px solid transparent',
+              transition: 'all 0.2s ease',
+              marginRight: '8px'
             }}
             onClick={(e) => {
               e.stopPropagation();
               if (hasChildren) toggleExpanded(nodeId);
             }}
             onMouseEnter={(e) => {
-              e.target.style.backgroundColor = '#e5e7eb';
+              e.target.style.backgroundColor = '#f1f5f9';
+              e.target.style.borderColor = '#cbd5e1';
             }}
             onMouseLeave={(e) => {
               e.target.style.backgroundColor = 'transparent';
+              e.target.style.borderColor = 'transparent';
             }}
           >
             {hasChildren ? (
@@ -883,54 +930,119 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
             )}
           </div>
 
-          {/* Node icon */}
-          <div className="node-icon" style={{ marginRight: '8px' }}>
+          {/* Enhanced Node icon with better spacing */}
+          <div className="node-icon" style={{ marginRight: '12px', display: 'flex', alignItems: 'center' }}>
             {getNodeIcon(nodeId, hasChildren, isExpanded, isDisconnected)}
           </div>
 
-          {/* Disconnected warning */}
+          {/* Enhanced Disconnected warning */}
           {isDisconnected && (
-            <div style={{ marginRight: '6px' }}>
-              <AlertTriangle className="w-4 h-4 text-orange-500" title="Disconnected node" />
+            <div style={{ marginRight: '8px', display: 'flex', alignItems: 'center' }}>
+              <div style={{
+                padding: '2px 6px',
+                backgroundColor: '#f59e0b',
+                borderRadius: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}>
+                <AlertTriangle className="w-3 h-3 text-white" />
+                <span style={{ fontSize: '10px', color: 'white', fontWeight: '600' }}>Disconnected</span>
+              </div>
             </div>
           )}
 
-          {/* Node text with merge/split indicators */}
-          <div className="node-text" style={{ flex: 1 }}>
+          {/* Enhanced Node text with better typography and spacing */}
+          <div className="node-text" style={{ 
+            flex: 1, 
+            paddingRight: '12px',
+            minWidth: 0 // Allow text to shrink if needed
+          }}>
             <span 
               style={{ 
-                fontSize: '14px',
-                fontWeight: isRoot ? '600' : '400',
-                color: isRoot ? '#1f2937' : isDisconnected ? '#ea580c' : (isSelectedForMerge ? '#059669' : (canSplit ? '#be185d' : (isMergedParent ? '#0891b2' : '#374151'))),
-                userSelect: 'none'
+                fontSize: '15px', // Slightly larger font
+                fontWeight: isRoot ? '700' : '500', // Better font weights
+                color: isRoot ? '#1e40af' : isDisconnected ? '#ea580c' : (isSelectedForMerge ? '#059669' : (canSplit ? '#be185d' : (isMergedParent ? '#0891b2' : '#374151'))),
+                userSelect: 'none',
+                lineHeight: '1.4',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                flexWrap: 'wrap'
               }}
-              title={node.text}
+              title={node.text || '(Empty node)'}
             >
-              {isSelectedForMerge && '✓ '}
-              {canSplit && '✂️ '}
-              {isMerged && !splitMode && (() => {
-                const splitInfo = getSplitInfo(nodeId);
-                return splitInfo ? `📄(${splitInfo.count}) ` : '📄 ';
-              })()}
-              {isMergedParent && (() => {
-                const childrenCount = getMergedChildrenCount(nodeId);
-                return `🔗👨‍👧‍👦(${childrenCount}) `;
-              })()}
-              {truncateTextForTreeView(node.text, 20)}
-              {isMergeable && !isSelectedForMerge && ' 🔗'}
-              {canMergeParent && !mergeMode && !splitMode && !isMergedParent && ' ⬆️'}
-              {canSplitParent && !mergeMode && !splitMode && ' ↙️'}
+              {/* Status indicators with better styling */}
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                {isSelectedForMerge && <span style={{ color: '#059669', fontWeight: '600' }}>✓</span>}
+                {canSplit && <span style={{ color: '#be185d', fontWeight: '600' }}>✂️</span>}
+                
+                {/* Enhanced document icon for ACTUAL merged nodes with metadata */}
+                {isMerged && !splitMode && node.mergeMetadata && (() => {
+                  const splitInfo = getSplitInfo(nodeId);
+                  return splitInfo ? (
+                    <span style={{
+                      backgroundColor: '#dbeafe',
+                      color: '#1e40af',
+                      padding: '2px 6px',
+                      borderRadius: '8px',
+                      fontSize: '11px',
+                      fontWeight: '600',
+                      border: '1px solid #93c5fd'
+                    }}>
+                      📄({splitInfo.count})
+                    </span>
+                  ) : '';
+                })()}
+                
+                {isMergedParent && (() => {
+                  const childrenCount = getMergedChildrenCount(nodeId);
+                  return (
+                    <span style={{
+                      backgroundColor: '#ecfdf5',
+                      color: '#059669',
+                      padding: '2px 6px',
+                      borderRadius: '8px',
+                      fontSize: '11px',
+                      fontWeight: '600',
+                      border: '1px solid #a7f3d0'
+                    }}>
+                      🔗👨‍👧‍👦({childrenCount})
+                    </span>
+                  );
+                })()}
+              </span>
+              
+              {/* Main text content */}
+              <span style={{ flex: 1 }}>
+                {node.text ? truncateTextForTreeView(node.text, 25) : '(Empty)'}
+              </span>
+              
+              {/* Action indicators */}
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px' }}>
+                {isMergeable && !isSelectedForMerge && (
+                  <span style={{ color: '#8b5cf6', fontWeight: '600' }}>🔗</span>
+                )}
+                {canMergeParent && !mergeMode && !splitMode && !isMergedParent && (
+                  <span style={{ color: '#0891b2', fontWeight: '600' }}>⬆️</span>
+                )}
+                {canSplitParent && !mergeMode && !splitMode && (
+                  <span style={{ color: '#0891b2', fontWeight: '600' }}>↙️</span>
+                )}
+              </span>
             </span>
           </div>
 
-          {/* Action buttons */}
+          {/* Enhanced Action buttons with better organization and styling */}
           <div 
             className="action-buttons"
             style={{ 
               display: 'flex', 
-              gap: '6px', 
-              opacity: (mergeMode || splitMode) && !isMergeable && !canSplit ? '0.3' : '0.7',
-              transition: 'opacity 0.2s ease'
+              gap: '4px', 
+              opacity: (mergeMode || splitMode) && !isMergeable && !canSplit ? '0.4' : '1',
+              transition: 'opacity 0.2s ease',
+              paddingLeft: '8px',
+              borderLeft: '1px solid #e5e7eb'
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -945,15 +1057,19 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
                   className="action-btn merge-btn"
                   title={mergeMode ? "Thoát chế độ gộp" : "Chế độ gộp nodes"}
                   style={{
-                    padding: '6px',
+                    padding: '6px 8px',
                     backgroundColor: mergeMode ? '#ef4444' : '#8b5cf6',
                     color: 'white',
                     border: 'none',
-                    borderRadius: '4px',
+                    borderRadius: '6px',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center'
+                    justifyContent: 'center',
+                    fontSize: '12px',
+                    fontWeight: '500',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                    transition: 'all 0.2s ease'
                   }}
                 >
                   {mergeMode ? <X className="w-3 h-3" /> : <span style={{ fontSize: '10px' }}>🔗</span>}
@@ -968,15 +1084,19 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
                   className="action-btn split-btn"
                   title={splitMode ? "Thoát chế độ tách" : "Chế độ tách nodes"}
                   style={{
-                    padding: '6px',
+                    padding: '6px 8px',
                     backgroundColor: splitMode ? '#ef4444' : '#ec4899',
                     color: 'white',
                     border: 'none',
-                    borderRadius: '4px',
+                    borderRadius: '6px',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center'
+                    justifyContent: 'center',
+                    fontSize: '12px',
+                    fontWeight: '500',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                    transition: 'all 0.2s ease'
                   }}
                 >
                   {splitMode ? <X className="w-3 h-3" /> : <span style={{ fontSize: '10px' }}>✂️</span>}
@@ -1034,7 +1154,7 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
               </button>
             )}
 
-            {/* Existing buttons - disabled in merge/split mode */}
+            {/* Enhanced regular action buttons with consistent styling */}
             {!mergeMode && !splitMode && (
               <>
                 {/* Add button */}
@@ -1046,16 +1166,22 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
                   className="action-btn add-btn"
                   title="Thêm node con"
                   style={{
-                    padding: '6px',
+                    padding: '6px 8px',
                     backgroundColor: '#10b981',
                     color: 'white',
                     border: 'none',
-                    borderRadius: '4px',
+                    borderRadius: '6px',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center'
+                    justifyContent: 'center',
+                    fontSize: '12px',
+                    fontWeight: '500',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                    transition: 'all 0.2s ease'
                   }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#059669'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = '#10b981'}
                 >
                   <Plus className="w-3 h-3" />
                 </button>
@@ -1069,16 +1195,22 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
                   className="action-btn edit-btn"
                   title="Sửa"
                   style={{
-                    padding: '6px',
+                    padding: '6px 8px',
                     backgroundColor: '#3b82f6',
                     color: 'white',
                     border: 'none',
-                    borderRadius: '4px',
+                    borderRadius: '6px',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center'
+                    justifyContent: 'center',
+                    fontSize: '12px',
+                    fontWeight: '500',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                    transition: 'all 0.2s ease'
                   }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#2563eb'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = '#3b82f6'}
                 >
                   <Edit3 className="w-3 h-3" />
                 </button>
@@ -1093,16 +1225,22 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
                     className={`action-btn move-btn ${isMoving ? 'active' : ''}`}
                     title={isMoving ? "Hủy di chuyển" : "Di chuyển"}
                     style={{
-                      padding: '6px',
+                      padding: '6px 8px',
                       backgroundColor: isMoving ? '#ef4444' : '#f59e0b',
                       color: 'white',
                       border: 'none',
-                      borderRadius: '4px',
+                      borderRadius: '6px',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center'
+                      justifyContent: 'center',
+                      fontSize: '12px',
+                      fontWeight: '500',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                      transition: 'all 0.2s ease'
                     }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = isMoving ? '#dc2626' : '#d97706'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = isMoving ? '#ef4444' : '#f59e0b'}
                   >
                     {isMoving ? <X className="w-3 h-3" /> : <Move className="w-3 h-3" />}
                   </button>
@@ -1118,16 +1256,22 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
                     className="action-btn delete-btn"
                     title="Xóa"
                     style={{
-                      padding: '6px',
+                      padding: '6px 8px',
                       backgroundColor: '#ef4444',
                       color: 'white',
                       border: 'none',
-                      borderRadius: '4px',
+                      borderRadius: '6px',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center'
+                      justifyContent: 'center',
+                      fontSize: '12px',
+                      fontWeight: '500',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                      transition: 'all 0.2s ease'
                     }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = '#dc2626'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = '#ef4444'}
                   >
                     <Trash2 className="w-3 h-3" />
                   </button>
@@ -1213,11 +1357,11 @@ const TreeNode = ({ nodeId, nodes, fileName, onEditNode, onAddNode, onMoveNode, 
     <div className="tree-content">
       {renderTree('root')}
       
-      {/* Edit Modal */}
+      {/* FIXED: Edit Modal with proper nodeText handling and debugging */}
       <EditNodeModal
         isOpen={isModalOpen}
         nodeId={selectedNodeId}
-        nodeText={selectedNodeId ? nodes[selectedNodeId]?.text : ''}
+        nodeText={selectedNodeId ? (nodes[selectedNodeId]?.text || '') : ''}
         onSave={handleModalSave}
         onCancel={handleModalCancel}
       />

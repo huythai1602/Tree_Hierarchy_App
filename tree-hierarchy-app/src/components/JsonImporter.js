@@ -1,4 +1,4 @@
-// File: src/components/JsonImporter.js (ENHANCED VERSION)
+// File: src/components/JsonImporter.js (ENHANCED VERSION - FIXED)
 import React, { useRef, useState } from 'react';
 import { Upload, FileText, AlertCircle, CheckCircle, X, Download } from 'lucide-react';
 
