@@ -258,8 +258,27 @@ const JsonImporter = ({ onImport, isLoading, currentData, hideButtons = false })
         
         // Enhanced validation
         const validationResult = validateJsonStructure(jsonData);
-        const processedData = convertToAppFormat(validationResult);
-        
+        let processedData = convertToAppFormat(validationResult);
+
+        // --- CHUẨN HÓA KEY NODE GỐC ---
+        // Nếu dữ liệu gốc là document format, có root_id và tree, và tree có key 'root', đổi key 'root' thành root_id
+        if (
+          validationResult.format === 'document' &&
+          jsonData.root_id &&
+          processedData.nodes &&
+          processedData.nodes.root &&
+          jsonData.root_id !== 'root'
+        ) {
+          processedData.nodes[jsonData.root_id] = { ...processedData.nodes.root };
+          delete processedData.nodes.root;
+          // Sửa lại parent/cha của các node con nếu đang là 'root'
+          Object.values(processedData.nodes).forEach(node => {
+            if (node.cha === 'root') node.cha = jsonData.root_id;
+            if (node.parent === 'root') node.parent = jsonData.root_id;
+          });
+        }
+        // --- END CHUẨN HÓA ---
+
         const nodeCount = Object.keys(processedData.nodes).length;
         const additionalFieldsCount = Object.values(processedData.nodes)
           .reduce((count, node) => count + (node.additionalFields ? Object.keys(node.additionalFields).length : 0), 0);

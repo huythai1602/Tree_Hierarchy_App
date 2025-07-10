@@ -1,5 +1,6 @@
-// File: src/components/DfsTextView.js (WITH EDIT MODAL)
+// File: src/components/DfsTextView.js (WITH EDIT MODAL AND EXPORT)
 import React, { useState, useMemo, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
+import { Download, FileText } from 'lucide-react';
 
 const DfsTextView = forwardRef(({
   nodes,
@@ -16,6 +17,78 @@ const DfsTextView = forwardRef(({
   const [separator] = useState('block'); // Only use separator for DFS formatting
   const [contentDisplay] = useState('full'); // Only use contentDisplay for DFS formatting
   const scrollRef = useRef(null); // Ref for scrollable container
+  const [showExportSuccess, setShowExportSuccess] = useState(false); // Export success notification
+  const [showExportOptions, setShowExportOptions] = useState(false); // Export options modal
+
+  // Export function to download DFS content as JSON
+  const handleExportToJson = (customFileName = null) => {
+    // Chuẩn hóa key node gốc nếu cần (như đã làm ở trên)
+    let nodesToExport = { ...nodes };
+    if (
+      nodesToExport.root &&
+      (nodesToExport.root.cha === null || nodesToExport.root.cha === undefined) &&
+      nodesToExport.root.id && nodesToExport.root.id !== 'root'
+    ) {
+      nodesToExport[nodesToExport.root.id] = { ...nodesToExport.root };
+      delete nodesToExport.root;
+    }
+
+    // Tìm key node gốc thực sự
+    let rootKey = Object.keys(nodesToExport).find(
+      id => !('cha' in nodesToExport[id]) || nodesToExport[id].cha === null || nodesToExport[id].cha === undefined
+    ) || Object.keys(nodesToExport)[0];
+
+    let rootId = rootKey;
+    if (
+      nodesToExport[rootKey] &&
+      nodesToExport[rootKey].id &&
+      nodesToExport[rootKey].id !== 'root'
+    ) {
+      rootId = nodesToExport[rootKey].id;
+      nodesToExport[rootId] = { ...nodesToExport[rootKey] };
+      delete nodesToExport[rootKey];
+      rootKey = rootId;
+    }
+
+    // Build tree: chỉ giữ các trường gốc, bỏ qua additionalFields, luôn có document và token_length
+    const treeData = {};
+    Object.keys(nodesToExport).forEach(nodeId => {
+      const node = nodesToExport[nodeId];
+      const nodeObj = {};
+      Object.keys(node).forEach(key => {
+        if (key === 'id' || key === 'additionalFields') return;
+        if ((key === 'parent' || key === 'cha') && node[key] === 'root') {
+          nodeObj[key] = rootId;
+        } else {
+          nodeObj[key] = node[key];
+        }
+      });
+      if (!('document' in nodeObj)) nodeObj.document = "";
+      if (!('token_length' in nodeObj)) nodeObj.token_length = nodeObj.text ? nodeObj.text.length : 0;
+      treeData[nodeId] = nodeObj;
+    });
+    const exportData = {
+      root_id: rootId,
+      tree: treeData
+    };
+
+    const jsonString = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    const defaultFileName = `${selectedTree || 'tree'}-${new Date().toISOString().split('T')[0]}.json`;
+    link.download = customFileName || defaultFileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    setShowExportSuccess(true);
+    setTimeout(() => setShowExportSuccess(false), 3000);
+    setShowExportOptions(false);
+  };
 
   // Save scroll position on every scroll event
   useEffect(() => {
@@ -53,6 +126,13 @@ const DfsTextView = forwardRef(({
     }
   }), []);
 
+  // Tìm id node gốc thực sự
+  const rootId = useMemo(() => {
+    return Object.keys(nodes).find(
+      id => !('cha' in nodes[id]) || nodes[id].cha === null || nodes[id].cha === undefined
+    ) || Object.keys(nodes)[0];
+  }, [nodes]);
+
   // CRITICAL: Ensure we're getting FULL content from nodes
   const dfsTraversal = useMemo(() => {
     const visitedNodes = [];
@@ -88,7 +168,7 @@ const DfsTextView = forwardRef(({
         text: nodeText, // FULL CONTENT - NO TRUNCATION
         originalText: nodeText, // Keep original for reference
         isDisconnected: nodeIsDisconnected,
-        isRoot: nodeId === 'root',
+        isRoot: nodeId === rootId, // Sửa ở đây
         textLength: nodeText.length
       });
       
@@ -105,7 +185,7 @@ const DfsTextView = forwardRef(({
     };
     
     // Start DFS from root
-    dfs('root');
+    dfs(rootId);
     
     // Add disconnected nodes at the end if not filtered out
     if (!contentDisplay) {
@@ -125,7 +205,7 @@ const DfsTextView = forwardRef(({
     }
     
     return visitedNodes;
-  }, [nodes, disconnectedNodes, isNodeDisconnected, contentDisplay, selectedTree]);
+  }, [nodes, disconnectedNodes, isNodeDisconnected, contentDisplay, selectedTree, rootId]);
 
   // Create display text based on content mode - PRESERVE FULL CONTENT
   const getDisplayResult = useMemo(() => {
@@ -227,39 +307,118 @@ const DfsTextView = forwardRef(({
         overflowX: 'auto', // ✅ Always show horizontal scrollbar when needed  
         background: 'white',
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        position: 'relative' // For notification positioning
       }}
     >
-      {/* Dropdown chọn file JSON - hiển thị luôn nếu có trees */}
-      {trees && Object.keys(trees).length > 0 && (
-        <div style={{ padding: '16px 24px 0 24px', background: 'white', position: 'sticky', top: 0, zIndex: 10, borderBottom: '1px solid #e5e7eb' }}>
-          <label htmlFor="dfs-file-select" style={{ fontWeight: 600, marginRight: 8, color: '#374151' }}>Chọn file JSON:</label>
-          <select
-            id="dfs-file-select"
-            value={selectedTree || Object.keys(trees)[0]}
-            onChange={e => setSelectedTree(e.target.value)}
-            style={{ 
-              padding: '6px 12px', 
-              borderRadius: 6, 
-              border: '1px solid #d1d5db', 
-              fontSize: 15,
-              backgroundColor: 'white',
-              color: '#374151',
-              fontWeight: 500,
-              minWidth: '200px'
-            }}
-          >
-            {Object.keys(trees).map(fileName => (
-              <option key={fileName} value={fileName}>{fileName}</option>
-            ))}
-          </select>
-          {Object.keys(trees).length > 1 && (
-            <span style={{ marginLeft: 8, fontSize: '12px', color: '#6b7280' }}>
-              ({Object.keys(trees).length} files available)
-            </span>
-          )}
+      {/* Export success notification */}
+      {showExportSuccess && (
+        <div style={{
+          position: 'absolute',
+          top: '20px',
+          right: '20px',
+          backgroundColor: '#059669',
+          color: 'white',
+          padding: '12px 16px',
+          borderRadius: '8px',
+          fontSize: '14px',
+          fontWeight: '500',
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          animation: 'slideIn 0.3s ease-out'
+        }}>
+          <FileText className="w-4 h-4" />
+                     ✅ Export thành công! File đã được tải xuống.
         </div>
       )}
+      {/* Header with file selector and export button */}
+      <div style={{ padding: '16px 24px 0 24px', background: 'white', position: 'sticky', top: 0, zIndex: 10, borderBottom: '1px solid #e5e7eb' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+          {/* File selector */}
+          {trees && Object.keys(trees).length > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <label htmlFor="dfs-file-select" style={{ fontWeight: 600, marginRight: 8, color: '#374151' }}>Chọn file JSON:</label>
+              <select
+                id="dfs-file-select"
+                value={selectedTree || Object.keys(trees)[0]}
+                onChange={e => setSelectedTree(e.target.value)}
+                style={{ 
+                  padding: '6px 12px', 
+                  borderRadius: 6, 
+                  border: '1px solid #d1d5db', 
+                  fontSize: 15,
+                  backgroundColor: 'white',
+                  color: '#374151',
+                  fontWeight: 500,
+                  minWidth: '200px'
+                }}
+              >
+                {Object.keys(trees).map(fileName => (
+                  <option key={fileName} value={fileName}>{fileName}</option>
+                ))}
+              </select>
+              {Object.keys(trees).length > 1 && (
+                <span style={{ marginLeft: 8, fontSize: '12px', color: '#6b7280' }}>
+                  ({Object.keys(trees).length} files available)
+                </span>
+              )}
+            </div>
+          )}
+          
+          {/* Export button */}
+          <button
+            onClick={() => setShowExportOptions(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 16px',
+              backgroundColor: '#059669',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = '#047857';
+              e.target.style.transform = 'translateY(-1px)';
+              e.target.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = '#059669';
+              e.target.style.transform = 'translateY(0)';
+              e.target.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+            }}
+          >
+            <Download className="w-4 h-4" />
+            Export JSON
+          </button>
+        </div>
+        
+        {/* Statistics display */}
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          fontSize: '12px',
+          color: '#6b7280',
+          paddingBottom: '8px'
+        }}>
+          <div>
+            📊 {stats.total} nodes • {stats.connected} connected • {stats.disconnected} disconnected
+          </div>
+          <div>
+            📝 {stats.totalChars} chars • avg: {stats.avgLength} • max: {stats.longestNode}
+          </div>
+        </div>
+      </div>
       <pre style={{
         background: 'white',
         fontFamily: '"SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace',
@@ -283,6 +442,112 @@ const DfsTextView = forwardRef(({
           filteredResult.content
         )}
       </pre>
+      
+      {/* Export Options Modal */}
+      {showExportOptions && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          zIndex: 2000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '12px',
+            padding: '24px',
+            minWidth: '400px',
+            maxWidth: '500px',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.15)'
+          }}>
+            <h3 style={{
+              margin: 0,
+              marginBottom: '20px',
+              fontSize: '18px',
+              color: '#1d4ed8',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <Download className="w-5 h-5" />
+              Export DFS Content
+            </h3>
+            
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{
+                display: 'block',
+                marginBottom: '8px',
+                fontWeight: '600',
+                color: '#374151'
+              }}>
+                File Name (optional):
+              </label>
+                             <input
+                 type="text"
+                 placeholder={`${selectedTree || 'tree'}-${new Date().toISOString().split('T')[0]}.json`}
+                 style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid #d1d5db',
+                  fontSize: '14px',
+                  boxSizing: 'border-box'
+                }}
+                id="customFileName"
+              />
+            </div>
+            
+            <div style={{
+              display: 'flex',
+              gap: '12px',
+              justifyContent: 'flex-end'
+            }}>
+              <button
+                onClick={() => setShowExportOptions(false)}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#e5e7eb',
+                  color: '#374151',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  const customFileName = document.getElementById('customFileName')?.value || null;
+                  handleExportToJson(customFileName);
+                }}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#059669',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                <Download className="w-4 h-4" />
+                Export
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 });

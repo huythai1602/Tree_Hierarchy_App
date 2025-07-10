@@ -1,0 +1,394 @@
+{
+  "root_id": "root",
+  "tree": {
+    "root": {
+      "text": "PHƯƠNG PHÁP ĐÁNH GIÁ THIỆT HẠI DO TAI NẠN SỰ CỐ TẠI CÁC CÔNG TRÌNH CỦA LIÊN DOANH “VIETSOVPETRO” МЕТОДИКА ПО ОЦЕНКЕ УЩЕРБА ПОСЛЕДСТВИЙ ПРОИСШЕСТВИЙ НА ОБЪЕКТАХ СП «ВЬЕТСОВПЕТРО».PHƯƠNG PHÁP ĐÁNH GIÁ THIỆT HẠI DO TAI NẠN SỰ CỐ TẠI CÁC CÔNG TRÌNH CỦA LIÊN DOANH “VIETSOVPETRO” МЕТОДИКА ПО ОЦЕНКЕ УЩЕРБА ПОСЛЕДСТВИЙ ПРОИСШЕСТВИЙ НА ОБЪЕКТАХ СП «ВЬЕТСОВПЕТРО».PHƯƠNG PHÁP ĐÁNH GIÁ THIỆT HẠI DO TAI NẠN SỰ CỐ TẠI CÁC CÔNG TRÌNH CỦA LIÊN DOANH “VIETSOVPETRO” МЕТОДИКА ПО ОЦЕНКЕ УЩЕРБА ПОСЛЕДСТВИЙ ПРОИСШЕСТВИЙ НА ОБЪЕКТАХ СП «ВЬЕТСОВПЕТРО».PHƯƠNG PHÁP ĐÁNH GIÁ THIỆT HẠI DO TAI NẠN SỰ CỐ TẠI CÁC CÔNG TRÌNH CỦA LIÊN DOANH “VIETSOVPETRO” МЕТОДИКА ПО ОЦЕНКЕ УЩЕРБА ПОСЛЕДСТВИЙ ПРОИСШЕСТВИЙ НА ОБЪЕКТАХ СП «ВЬЕТСОВПЕТРО».Ущерба от происшествий на объектах СП«Вьетсовпетро» Па Thiệt hại do tai nạn sự cố tại các công trình của LD “Vietsovpetro” \n",
+      "cha": null,
+      "con": [
+        "4432502c-555a-4f4b-bb4f-280c362f0182",
+        "ec4562d0-b197-4e22-87c1-b3ba7ce372c3",
+        "1028ea68-4877-48bc-8ad6-1d321d9a259e",
+        "45a2e893-1c97-474c-9712-d8e9b77d8b74",
+        "08f45514-5f2d-41b3-a2c7-8bac42423e8d",
+        "4d1ce5e2-5e9f-4063-a68b-abea60a7ebac",
+        "50670891-7953-412d-a022-e1877e5f6a52"
+      ],
+      "document": "",
+      "token_length": 854
+    },
+    "4432502c-555a-4f4b-bb4f-280c362f0182": {
+      "text": "",
+      "cha": "root",
+      "con": [
+        "50ce9af3-a409-4c77-8ec9-05c86a01cd36"
+      ],
+      "document": "",
+      "token_length": 0
+    },
+    "50ce9af3-a409-4c77-8ec9-05c86a01cd36": {
+      "text": "  Tên đơn vị: Ban ISO VSP  Số lượng: 01  Ghi chú: (trống) \n  Tên đơn vị: Phòng ATSKMT  Số lượng: 03  Ghi chú: (trống) \n  Tên đơn vị: Phòng Kỹ thuật sản xuất  Số lượng: 01  Ghi chú: (trống) \n  Tên đơn vị: Phòng Khoan và sửa giếng  Số lượng: 01  Ghi chú: (trống) \n  Tên đơn vị: Phòng Địa chất mỏ  Số lượng: 01 \n Ghi chú: (trống) \n  Tên đơn vị: Phòng TT&CNVT \n Số lượng: 01 \n Ghi chú: (trống) \n  Tên đơn vị: Phòng Thanh tra bảo vệ \n Số lượng: 01 \n Ghi chú: (trống) \n  Tên đơn vị: Phòng Vật tư – Thiết bị \n Số lượng: 01 \n Ghi chú: (trống) \n  Tên đơn vị: Phòng Xây dựng cơ bản \n Số lượng: 01 \n Ghi chú: (trống) \n  Tên đơn vị: Phòng Tiếp thị và dịch vụ \n Số lượng: 01 \n Ghi chú: (trống) \n  Tên đơn vị: Phòng BH&QLRR \n Số lượng: 02 \n Ghi chú: (trống) \n  Tên đơn vị: Phòng KTKH \n Số lượng: 03 \n Ghi chú: (trống) \n  Tên đơn vị: Trung tâm điều độ sản xuất \n Số lượng: 01 \n Ghi chú: (trống) \n  Tên đơn vị: Ban quản lý hợp đồng dầu khí \n Số lượng: 01 \n Ghi chú: (trống) \n  Tên đơn vị: XN Khai thác \n Số lượng: 04 \n Ghi chú: (trống) \n  Tên đơn vị: XN Khoan và sửa giếng \n Số lượng: 04 \n Ghi chú: (trống) \n  Tên đơn vị: XN Xây lắp \n Số lượng: 04 \n Ghi chú: (trống) \n  Tên đơn vị: XN Cơ điện \n Số lượng: 03 \n Ghi chú: (trống) \n  Tên đơn vị: XN Khí \n Số lượng: 03 \n Ghi chú: (trống) \n  Tên đơn vị: XN VTB&CTL \n Số lượng: 04 \n Ghi chú: (trống) \n  Tên đơn vị: XN Dịch vụ \n Số lượng: 03 \n Ghi chú: (trống) \n  Tên đơn vị: XN ĐVLGK \n Số lượng: 03 \n Ghi chú: (trống) \n  Tên đơn vị: TTAT&BVMT \n Số lượng: 02 \n Ghi chú: (trống) \n  Tên đơn vị: Viện NCKH&TK \n Số lượng: 01 \n Ghi chú: (trống) \n  Tổng cộng: 50",
+      "cha": "4432502c-555a-4f4b-bb4f-280c362f0182",
+      "con": [],
+      "document": "",
+      "token_length": 1655
+    },
+    "ec4562d0-b197-4e22-87c1-b3ba7ce372c3": {
+      "text": "I. QUY ĐỊNH CHUNG 5 \n",
+      "cha": "root",
+      "con": [
+        "afc9defb-4eb0-400b-b3d4-c9bf7fe54cd0"
+      ],
+      "document": "",
+      "token_length": 21
+    },
+    "afc9defb-4eb0-400b-b3d4-c9bf7fe54cd0": {
+      "text": "",
+      "cha": "ec4562d0-b197-4e22-87c1-b3ba7ce372c3",
+      "con": [],
+      "document": "",
+      "token_length": 0
+    },
+    "1028ea68-4877-48bc-8ad6-1d321d9a259e": {
+      "text": "II. NỘI DUNG CHÍNH:5 \n",
+      "cha": "root",
+      "con": [
+        "194ceb85-e97a-48dc-b4a8-19ed8e1f9ef6",
+        "395492dc-cc98-420d-8c6c-84c6febf3e4f"
+      ],
+      "document": "",
+      "token_length": 23
+    },
+    "194ceb85-e97a-48dc-b4a8-19ed8e1f9ef6": {
+      "text": "%1.1. Phạm vi áp dụng và yêu cầu chung :5 \n\n    %1.2. Cấu trúc xác định thiệt hại:6 \n\n    %1.3. Các thành phần của thiệt hại kinh tế  7 \n\n        %1.3.1. Thiệt hại trực tiếp7 \n\n            %1.3.1.1. Tổn thất do phá hủy (thiệt hại) tài sản cố định8 \n\n            %1.3.1.2. Tổn thất do phá hủy (thiệt hại) nguyên vật liệu hàng hóa 9 \n\n            %1.3.1.3. Tổn thất do phá hủy (thiệt hại) tài sản của bên thứ ba  10 \n\n            %1.3.1.4. Chi phí cách ly/ khắc phục và điều tra sự cố  11 \n\n        %1.3.2. Các thiệt hại kinh tế xã hội12 \n\n        %1.3.3. Thiệt hại gián tiếp13 \n\n        %1.3.4. Thiệt hại môi trường16",
+      "cha": "1028ea68-4877-48bc-8ad6-1d321d9a259e",
+      "con": [],
+      "document": "",
+      "token_length": 622
+    },
+    "395492dc-cc98-420d-8c6c-84c6febf3e4f": {
+      "text": "%1.4. Báo cáo17 \n\n        %1.4.1. Quy định chung17 \n\n        %1.4.2. Biểu mẫu đánh giá thiệt hại kinh tế 17",
+      "cha": "1028ea68-4877-48bc-8ad6-1d321d9a259e",
+      "con": [],
+      "document": "",
+      "token_length": 108
+    },
+    "45a2e893-1c97-474c-9712-d8e9b77d8b74": {
+      "text": "Phụ lục19 \n",
+      "cha": "root",
+      "con": [
+        "ddb9c994-4bd7-463c-8734-985241f353a0"
+      ],
+      "document": "",
+      "token_length": 11
+    },
+    "ddb9c994-4bd7-463c-8734-985241f353a0": {
+      "text": "Phụ lục 23 \n\nPhụ lục24",
+      "cha": "45a2e893-1c97-474c-9712-d8e9b77d8b74",
+      "con": [],
+      "document": "",
+      "token_length": 22
+    },
+    "08f45514-5f2d-41b3-a2c7-8bac42423e8d": {
+      "text": "I. QUY ĐỊNH CHUNG \n",
+      "cha": "root",
+      "con": [
+        "75ff0329-c2c5-4693-b84a-2fd28d9d94e1"
+      ],
+      "document": "",
+      "token_length": 19
+    },
+    "75ff0329-c2c5-4693-b84a-2fd28d9d94e1": {
+      "text": "%1.1. Tên tài liệu - Phương pháp đánh giá thiệt hại do tai nạn sự cố tại các công trình của Liên doanh “Vietsovpetro”. \n\n    %1.2. Thời hạn hiệu lực – thường xuyên. \n\n    %1.3. Phạm vi áp dụng – Các phương tiện nổi, các công trình bờ và biển của Liên doanh “Vietsovpetro”.",
+      "cha": "08f45514-5f2d-41b3-a2c7-8bac42423e8d",
+      "con": [],
+      "document": "",
+      "token_length": 272
+    },
+    "4d1ce5e2-5e9f-4063-a68b-abea60a7ebac": {
+      "text": "1. NỘI DUNG CHÍNH: \n",
+      "cha": "root",
+      "con": [
+        "463fb23c-c265-41b1-88a5-58d6f5cc0c00",
+        "5633c7fe-3ccf-423c-bafd-d823b190a762",
+        "5dea97a3-acac-4a10-9268-241361675284",
+        "9fb49293-a307-4a87-9beb-a9cedbb2855a"
+      ],
+      "document": "",
+      "token_length": 21
+    },
+    "463fb23c-c265-41b1-88a5-58d6f5cc0c00": {
+      "text": "    %1.1. Phạm vi áp dụng và yêu cầu chung \n",
+      "cha": "4d1ce5e2-5e9f-4063-a68b-abea60a7ebac",
+      "con": [
+        "65fa6c14-8467-41ab-9aa4-177ca0e5dc40"
+      ],
+      "document": "",
+      "token_length": 46
+    },
+    "65fa6c14-8467-41ab-9aa4-177ca0e5dc40": {
+      "text": "Phương pháp đánh giá thiệt hại từ việc xảy ra tai nạn sự cố tại các công trình của Vietsovpetro (sau đây gọi là Phương pháp) là một phần không thể thiếu của Hệ thống quản lý an toàn lao động, an toàn công nghiệp và bảo vệ môi trường.Phương pháp này thiết lập các quy định chung và quy trình đánh giá định lượng thiệt hại kinh tế từ các tai nạn sự cố tại các công trình của Vietsovpetro.\nDữ liệu để đánh giá định lượng được sử dụng để đánh giá/đánh giá lại rủi ro trong lĩnh vực ATLĐ, ATCN&BVMT, soạn thảo các biện pháp quản lý rủi ro trong lĩnh vực ATLĐ, ATCN&BVMT, phân tích tính hiệu quả của các biện pháp hiện hành để quản lý rủi ro trong lĩnh vực ATLĐ, ATCN&BVMT và đưa ra quyết định để đảm bảo cung cấp các nguồn lực cần thiết.\nPhương pháp này sẽ hướng dẫn tất cả các đơn vị thành viên của Vietsovpetro trong các hoạt động của mình.\nChịu trách nhiệm chuẩn bị thông tin đánh giá định lượng thiệt hại kinh tế là các lãnh đạo các đơn vị thành viên để xảy ra sự cố.\nTrách nhiệm tổng hợp, phân tích dữ liệu và xây dựng các đề xuất quản lý rủi ro trong lĩnh vực ATLĐ, ATCN&BVMT được giao cho Phòng ATSKMT BMĐH Liên doanh “Vietsovpetro”.",
+      "cha": "463fb23c-c265-41b1-88a5-58d6f5cc0c00",
+      "con": [],
+      "document": "",
+      "token_length": 1135
+    },
+    "5633c7fe-3ccf-423c-bafd-d823b190a762": {
+      "text": "    %1.2. Cấu trúc xác định thiệt hại \n",
+      "cha": "4d1ce5e2-5e9f-4063-a68b-abea60a7ebac",
+      "con": [
+        "03136bfc-e3c7-4371-8ddd-21de6cd5a2cc"
+      ],
+      "document": "",
+      "token_length": 40
+    },
+    "03136bfc-e3c7-4371-8ddd-21de6cd5a2cc": {
+      "text": "Cấu trúc tổng quát của thiệt hại do tai nạn sự cố tại các công trình của Vietsovpetro được trình bày trong Phụ lục số 2 và bao gồm các thành phần kinh tế sau: \n Tổn thất trực tiếp của Xí nghiệp thuộc LD vận hành công trình có tai nạn sự cố; \n Chi phí nội cách ly/ khắc phục và điều tra vụ sự cố; \n Tổn thất kinh tế xã hội (chi phí phát sinh do tử vong và thương tật);  Thiệt hại gián tiếp;  Thiệt hại môi trường (thiệt hại cho các đối tượng của môi trường thiên nhiên).Thiệt hại từ tai nạn sự cố tại các công trình tính theo công thức sau:\nПа=Ппп+Пла+Псэ+Пнв+Пэкол, (2.1) Trong đó:\nПа - tổng thiệt hại do tai nạn sự cố (triệu đồng);\nПпп - tổn thất trực tiếp của xí nghiệp thuộc LD vận hành công trình xảy ra sự cố (triệu đồng);\nПла - chi phí cách ly/ khắc phục và điều tra vụ tai nạn (triệu đồng);\nПсэ - tổn thất kinh tế xã hội (chi phí phát sinh do hậu quả của cái chết và thương \ntích) (triệu đồng);Пнв - thiệt hại gián tiếp (triệu đồng);\nПэкол - thiệt hại môi trường (thiệt hại cho các đối tượng của môi trường thiên nhiên) (triệu đồng).",
+      "cha": "5633c7fe-3ccf-423c-bafd-d823b190a762",
+      "con": [],
+      "document": "",
+      "token_length": 1045
+    },
+    "5dea97a3-acac-4a10-9268-241361675284": {
+      "text": "    %1.3. Các thành phần của thiệt hại kinh tế \n",
+      "cha": "4d1ce5e2-5e9f-4063-a68b-abea60a7ebac",
+      "con": [
+        "a5ca3c0f-5974-4601-b89b-29aab889a694",
+        "210017b8-dc32-48d4-a4bf-8cbfe45c0175",
+        "5c9b4f6a-a467-4c60-9a6e-229b5af8ae02",
+        "f500bdce-8680-49ad-802b-e7744ed85c43"
+      ],
+      "document": "",
+      "token_length": 50
+    },
+    "a5ca3c0f-5974-4601-b89b-29aab889a694": {
+      "text": "        %1.3.1. Thiệt hại trực tiếp \n",
+      "cha": "5dea97a3-acac-4a10-9268-241361675284",
+      "con": [
+        "0b6d55e5-f4bb-4345-b961-848eed119b6b",
+        "3ce5c5bc-0ab6-4f2a-a14e-b52013f5ae0c",
+        "494fcaba-fe85-4e61-8c98-5c42114e397f",
+        "064dfd1b-b5ba-4556-9fbf-a49abcf0c983",
+        "2d14a79b-3867-40da-9848-91b90034fd37"
+      ],
+      "document": "",
+      "token_length": 37
+    },
+    "0b6d55e5-f4bb-4345-b961-848eed119b6b": {
+      "text": "Thiệt hại trực tiếp của xí nghiệp thuộc LD vận hành công trình để xảy ra tai nạn sự cố, (Ппп) được tính theo công thức sau:Ппп =Поф+Птмф+Пим,(2.2) Trong đó:Поф - tổn thất của một xí nghiệp thuộc liên doanh do phá hủy (thiệt hại) tài sản cố định (sản xuất và phi sản xuất) (triệu đồng);\nПтмф – tổn thất của một xí nghiệp thuộc liên doanh do phá hủy (thiệt hại) nguyên vật liệu hàng hóa (sản phẩm, nguyên liệu, v.v.), (triệu đồng).\nПим - tổn thất do phá hủy (thiệt hại) tài sản của bên thứ ba, (triệu đồng).",
+      "cha": "a5ca3c0f-5974-4601-b89b-29aab889a694",
+      "con": [],
+      "document": "",
+      "token_length": 505
+    },
+    "3ce5c5bc-0ab6-4f2a-a14e-b52013f5ae0c": {
+      "text": "%1.3.1.1. Tổn thất do phá hủy (thiệt hại) tài sản cố định \n\nThiệt hại thực tế từ việc phá hủy/ thiệt hại đối với tài sản cố định Поф phải được xác định dựa trên các tài liệu: 1. Biên bản khảo sát công trình bị phá hủy/ thiệt hại; 2. Biểu khuyết tật; 3. Dự toán chi phí; 4. Các tài liệu kế toán (thẻ kho, bảng cân đối kế toán về tài sản v.v.) 5. Tạo quỹ thanh lý.Đối với tài sản sản xuất cố định (thiết bị, máy móc, phương tiện, hàng tồn kho), chi phí thay thế phải được xác định dựa trên số tiền cần thiết để mua một mặt hàng tương tự bị phá hủy, dựa trên phân tích giá thị trường tại ngày tính toán thay thế trên cơ sở từ 3 đến 5 báo giá, bao gồm cả chi phí vận chuyển và lắp đặt, thuế hải quan và các loại phí khác.\nChi phí thay thế đối với các tòa nhà và công trình phải được xác định dựa trên giá trị thực tế của các công trình vào ngày đưa vào sử dụng, có tính đến các chỉ số khấu hao vào ngày lập các giới hạn để thay thế, bao gồm chi phí vận chuyển và lắp đặt, thuế hải quan và các loại phí khác.\nTừ tổng thiệt hại thực tế từ việc phá hủy/ thiệt hại đến tài sản cố định của Поф, các khoản khấu trừ được thực hiện cho:  Hao mòn trong quá trình sửa chữa các bộ phận, cụm thiết bị, chi tiết; \n Chi phí cho sửa chữa và bảo dưỡng, cũng như các chi phí khác cần thiết không phụ thuộc vào việc xảy ra tai nạn sự cố.",
+      "cha": "a5ca3c0f-5974-4601-b89b-29aab889a694",
+      "con": [],
+      "document": "",
+      "token_length": 1319
+    },
+    "494fcaba-fe85-4e61-8c98-5c42114e397f": {
+      "text": "%1.3.1.2. Tổn thất do phá hủy (thiệt hại) nguyên vật liệu hàng hóa \n\nTổn thất của xí nghiệp do sự phá hủy (thiệt hại) nguyên vật liệu hàng hóa do sự cố hàng tồn kho (Птмц) được xác định bằng tổng thiệt hại của từng loại tài sản như sau: \nTrong đó: \n thiệt hại gây ra đối với loại sản phẩm thứ i do xí nghiệp sản xuất (cả chưa hoàn thành, cũng như đã hoàn thành), (triệu đồng);n - là số loại hàng hóa bị thiệt hại do sự cố; \n thiệt hại gây ra đối với loại sản phẩm thứ j mà xí nghiệp mua, cũng như nguyên liệu thô và bán thành phẩm, (triệu đồng);m - số loại nguyên liệu thô bị thiệt hại do sự cố.\nThiệt hại gây ra đối với loại sản phẩm thứ i do xí nghiệp sản xuất phải được xác định dựa trên chi phí sản xuất cần thiết cho việc tái sản xuất, nhưng không cao hơn giá trị thị trường.\nThiệt hại gây ra cho loại sản phẩm thứ i do xí nghiệp mua phải được xác định dựa trên chi phí với giá cần thiết cho việc mua lại chúng, cũng như chi phí vận chuyển và đóng gói, thuế hải quan và các loại phí khác.\nSố lượng và giá trị nguyên vật liệu hàng hóa có tại thời điểm xảy ra sự cố, cần thiết xác định từ dữ liệu kế toán.\nĐể tính toán thiệt hại dự kiến từ việc phá hủy/ thiệt hại đối với nguyên vật liệu hàng hóa, có thể dựa trên khối lượng lưu trữ trung bình hàng năm của sản phẩm và nguyên liệu tại các công trình nằm trong khu vực bị ảnh hưởng, cũng như giá bán sỉ trung bình cho các loại sản phẩm và nguyên liệu này.",
+      "cha": "a5ca3c0f-5974-4601-b89b-29aab889a694",
+      "con": [],
+      "document": "",
+      "token_length": 1413
+    },
+    "064dfd1b-b5ba-4556-9fbf-a49abcf0c983": {
+      "text": "%1.3.1.3. Tổn thất do phá hủy (thiệt hại) tài sản của bên thứ ba \n\nTổn thất do phá hủy (thiệt hại) tài sản của bên thứ ba (bao gồm cả dân cư) do sự cố được xác định tương tự như xác định thiệt hại đối với tài sản của xí nghiệp (đối với pháp nhân), cũng như trên cơ sở giá trị thị trường của tài sản thuộc sở hữu của họ hoặc quyền sở hữu (đối với cá nhân) và/hoặc có tính đến dữ liệu của các công ty bảo hiểm (nếu tài sản được bảo hiểm).",
+      "cha": "a5ca3c0f-5974-4601-b89b-29aab889a694",
+      "con": [],
+      "document": "",
+      "token_length": 439
+    },
+    "2d14a79b-3867-40da-9848-91b90034fd37": {
+      "text": "%1.3.1.4. Chi phí cách ly/ khắc phục và điều tra sự cố \n\nCác chi phí cách ly/ khắc phục và điều tra sự cố (Пла) được xác định theo công thức:Пла =Пл+Пр,(2.2)\nTrong đó:\nПл - chi phí cách ly/ khắc phục sự cố (triệu đồng).\nПр - chi phí điều tra sự cố (triệu đồng).\nCác chi phí cách ly/ khắc phục sự cố bao gồm: \n Chi phí tiền lương không định trước (làm thêm giờ, làm việc vào ban đêm, vào cuối tuần và ngày lễ, tiền thưởng cho việc thực hiện các nhiệm vụ đặc biệt quan trọng) cho CBCNV trong quá trình cách ly/ khắc phục sự cố; \n Chi phí năng lượng điện (và năng lượng khác) tiêu tốn trong quá trình cách ly/ khắc phục sự cố; \n Chi phí vật liệu tiêu hao trong quá trình cách ly và khắc phục sự cố; \n Chi phí vận hành máy móc và cơ cấu cơ khí; \n Chi phí dịch vụ của các tổ chức chuyên ngành để cách ly và khắc phục sự cố;Các chi phí điều tra sự cố phải bao gồm:\nChi phí chi trả cho các thành viên của hội đồng điều tra sự cố (bao gồm cả công tác phí); \n Chi phí cho các hoạt động nghiên cứu khoa học liên quan đến việc xem xét các nguyên nhân kỹ thuật của sự cố;  Chi phí dịch vụ thuê các chuyên gia tham gia điều tra các nguyên nhân kỹ thuật của sự cố và đánh giá (bao gồm cả kinh tế) về hậu quả của sự cố.Trong trường hợp tính toán thiệt hại sơ bộ, chi phí cách ly/khắc phục và điều tra sự cố có thể được ước tính dựa trên chi phí dịch vụ trung bình của các tổ chức chuyên môn và chuyên gia hoặc lấy 10% chi phí thiệt hại trực tiếp/thiệt hại tài sản.",
+      "cha": "a5ca3c0f-5974-4601-b89b-29aab889a694",
+      "con": [],
+      "document": "",
+      "token_length": 1459
+    },
+    "210017b8-dc32-48d4-a4bf-8cbfe45c0175": {
+      "text": "        %1.%2.3. Các thiệt hại kinh tế xã hội \n",
+      "cha": "5dea97a3-acac-4a10-9268-241361675284",
+      "con": [
+        "8f6e0ef8-6b89-4857-baa9-5596ad0e1200"
+      ],
+      "document": "",
+      "token_length": 48
+    },
+    "8f6e0ef8-6b89-4857-baa9-5596ad0e1200": {
+      "text": "Thiệt hại kinh tế xã hội (Псэ) được tính dựa trên tổng chi phí cung cấp hỗ trợ tài chính liên quan đến cái chết của nhân viên và hỗ trợ tài chính trong trường hợp thương tật hoàn toàn hoặc một phần:ПСЭ = ПГП+ПТП,(2.5)\nTrong đó:\nПгп - hỗ trợ tài chính liên quan đến cái chết của một nhân viên (triệu đồng).\nПтп - hỗ trợ tài chính trong trường hợp thương tật toàn bộ hoặc một phần (triệu đồng).\nCác chi phí liên quan đến thương tích của nhân viên được tính theo công thức:\nПТП = SВЗ+SВВ,(2.6)\nTrong đó:\nSВЗ - chi phí cho việc thanh toán hỗ trợ tài chính cho việc điều trị bệnh không có trong chương trình bảo hiểm y tế tự nguyện (triệu đồng).\nSВВ - thanh toán bồi thường thiệt hại gây ra cho sức khỏe của nhân viên do tai nạn lao động hoặc bệnh nghề nghiệp (triệu đồng).\nKhi tính toán thiệt hại kinh tế xã hội, cần phải được thực hiện theo các quy định hiện hành của Vietsovpetro.",
+      "cha": "210017b8-dc32-48d4-a4bf-8cbfe45c0175",
+      "con": [],
+      "document": "",
+      "token_length": 878
+    },
+    "5c9b4f6a-a467-4c60-9a6e-229b5af8ae02": {
+      "text": "        %1.%2.4. Thiệt hại gián tiếp \n",
+      "cha": "5dea97a3-acac-4a10-9268-241361675284",
+      "con": [
+        "e5a77a7d-4a01-41b4-8628-2cd3ee9f6723",
+        "486ef8dc-e09d-4be1-b1ba-d1b031692374"
+      ],
+      "document": "",
+      "token_length": 39
+    },
+    "e5a77a7d-4a01-41b4-8628-2cd3ee9f6723": {
+      "text": "Thiệt hại gián tiếp (ПНВ) do sự cố được xác định là một phần của doanh thu mà xí nghiệp bị mất do thời gian ngừng hoạt động (ПНП), tiền lương và chi phí cố định của xí nghiệp trong thời gian ngừng hoạt động (ПЗП) và tổn thất do thanh toán các khoản nộp phạt khác nhau, tiền phạt, hình phạt, v.v.), cũng như các khoản lỗ của bên thứ ba do lợi nhuận mà họ không nhận được (ПНПТЛ):ПНВ = ПЗП + ПНП + ПШ+ ПНПТЛ, (2.7)\nThiệt hại gián tiếp do sự cố được xác định nghĩa là tổng lợi nhuận không thu được của tổ chức (ПНП), tiền lương và chi cố định trong thời gian xảy ra sự cố và công việc khôi phục sản xuất (ПЗП), các khoản lỗ do thanh toán các khoản nộp phạt khác nhau, tiền phạt, hình phạt, v.v. (ПШ), cũng như các khoản lỗ của bên thứ ba do lợi nhuận bị mất (ПНПТЛ) theo công thức 2.5.\nGiá trị của tiền lương và chi phí cố định trong thời gian xảy ra tai nạn và công việc khôi phục sản xuất (ПЗП) được xác định bởi các công thức (2.13) và (2.13a):\nПЗП = (VЗП * А+ VУП) * ТПР,(2.8)\nTrong đó:\nVЗП - tiền lương của nhân viên xí nghiệp (triệu đồng/ngày);\nA - tỷ lệ nhân viên dừng làm việc tại nơi làm việc (tỷ lệ số lượng nhân viên không được sử dụng tại nơi làm việc do thời gian dừng hoạt động trên tổng số nhân viên);\nVУП - chi phí cố định (triệu đồng/ngày); ТПР - thời gian dừng của công trình (ngày).\nПЗП = (VЗП1 * N+ VУП) * ТПР,(2.8a)\nTrong đó:\nVЗП1 - mức lương trung bình của 1 nhân viên của xí nghiệp (hoặc đơn vị dừng sản xuất) (triệu đồng/ngày);\nN là số lượng nhân viên không được sử dụng tại nơi làm việc do thời gian dừng sản xuất.\nLợi nhuận bị mất do thời gian ngừng hoạt động của xí nghiệp (ПНП) được xác định theo công thức:\nTrong đó:",
+      "cha": "5c9b4f6a-a467-4c60-9a6e-229b5af8ae02",
+      "con": [],
+      "document": "",
+      "token_length": 1642
+    },
+    "486ef8dc-e09d-4be1-b1ba-d1b031692374": {
+      "text": " chi phí bán sỉ trung bình (giá bán) của một đơn vị sản phẩm (dịch vụ) không sản xuất được thứ i vào ngày xảy ra sự cố (triệu đồng);  chi phí trung bình trên mỗi đơn vị sản phẩm (dịch vụ) không sản xuất được thứ i vào ngày xảy ra sự cố;n - số lượng các loại sản phẩm sản xuất (dịch vụ);  sản lượng của loại sản phẩm (dịch vụ) thứ i, không sản xuất được do sự cố:Trong đó:  sản lượng trung bình hàng ngày (hàng tháng, hàng quý, hàng năm) của sản phẩm (dịch vụ) loại i trước khi xảy ra sự cố;  sản lượng trung bình hàng ngày (hàng tháng, hàng quý, hàng năm) của loại sản phẩm (dịch vụ) thứ i sau sự cố;  thời gian cần thiết để khắc phục các thiệt hại và hư hỏng, khôi phục sản lượng sản xuất (dịch vụ) về mức trước sự cố.Trong trường hợp Liên doanh quyết định không khôi phục công trình sản xuất trở \nlại như lúc trước sự cố, giá trị của chi phí cố định có điều kiện được xác định dựa trên lợi nhuận hàng năm của tổ chức, trong khi đó thì thiệt hại cho tổ chức liên quan đến hư hại/phá hủy tài sản cố định, vật tư hàng hóa và thiệt hại gián tiếp có tổng không được vượt quá chi phí thị trường của công trình này trong tình trạng \"trước sự cố\".Các khoản lỗ do thanh toán các khoản tiền phạt, tiền phạt khác nhau, v.v. (П_ш) được định nghĩa là tổng số tiền phạt, hình phạt và các hình phạt khác áp dụng cho công ty do không đáp ứng thời hạn giao hàng, hợp đồng hoặc các nghĩa vụ khác không được thực hiện do sự cố tại công trình sản xuất nguy hiểm.\nThiệt hại gián tiếp cho bên thứ ba được tính tương tự như tổn thất của xí nghiệp đối với chỉ tiêu này. Nguồn thông tin để đánh giá tổn thất do thời gian dừng sản xuất do sự cố là tài liệu điều tra nguyên nhân kỹ thuật của sự cố, các chỉ số kinh tế và thống kê của ngành và tổ chức, tài khoản của các tổ chức bên ngoài, các vụ kiện, khoản phạt, tiền phạt do không thực hiện các nghĩa vụ hợp đồng của tổ chức bị ảnh hưởng bởi sự cố.",
+      "cha": "5c9b4f6a-a467-4c60-9a6e-229b5af8ae02",
+      "con": [],
+      "document": "",
+      "token_length": 1881
+    },
+    "f500bdce-8680-49ad-802b-e7744ed85c43": {
+      "text": "        %1.%2.5. Thiệt hại môi trường \n",
+      "cha": "5dea97a3-acac-4a10-9268-241361675284",
+      "con": [
+        "32e1e6af-d286-4806-9382-489527ce74a4"
+      ],
+      "document": "",
+      "token_length": 39
+    },
+    "32e1e6af-d286-4806-9382-489527ce74a4": {
+      "text": "Thiệt hại sinh thái (Пэкол) bao gồm tổng thiệt hại từ tất cả các thành phần của môi trường:Пэкол = Эa + ЭВ + ЭП + Эб + Эо, (2.11)\nЭa - thiệt hại do ô nhiễm không khí (triệu đồng);\nЭВ - thiệt hại do ô nhiễm nguồn nước, (triệu đồng);\nЭП - thiệt hại do ô nhiễm đất (triệu đồng);\nЭб - thiệt hại liên quan đến việc phá hủy tài nguyên sinh học (bao gồm rừng), (triệu đồng);\nЭо - thiệt hại do tắc nghẽn (hư hại) diện tích mặt bằng bởi các mảnh vụn (mảnh vỡ) của các tòa nhà, công trình, thiết bị, v.v., (triệu đồng);\nKhi tính toán thiệt hại môi trường, cần phải tuân thủ theo các tiêu chuẩn được xác định trong luật môi trường của Việt Nam hoặc quốc gia hiện diện.",
+      "cha": "f500bdce-8680-49ad-802b-e7744ed85c43",
+      "con": [],
+      "document": "",
+      "token_length": 657
+    },
+    "9fb49293-a307-4a87-9beb-a9cedbb2855a": {
+      "text": "    %1.4. Báo cáo \n",
+      "cha": "4d1ce5e2-5e9f-4063-a68b-abea60a7ebac",
+      "con": [
+        "54dd7b4e-e207-4ea5-94e9-feb96f3cfba4"
+      ],
+      "document": "",
+      "token_length": 19
+    },
+    "54dd7b4e-e207-4ea5-94e9-feb96f3cfba4": {
+      "text": "%1.4.1. Quy định chung \n\nBáo cáo đánh giá các sự cố thiệt hại kinh tế phải gửi về Phòng ATSKMT LD \"Vietsovpetro\" không quá 1 (một) tháng kể từ ngày xảy ra tai nạn sự cố.Phòng ATSKMT LD \"Vietsovpetro\" tổng hợp các thông tin và phản ánh nó trong báo cáo của mình trong khuôn khổ báo cáo minh bạch các chỉ số ATLĐ-ATCN-BVMT.\nKhi cần thiết, Phòng ATSKMT LD \"Vietsovpetro\" tiến hành đánh giá/ đánh giá lại các rủi ro và thay đổi trong các kế hoạch biện pháp quản lý rủi ro. \n\n        %1.4.2. Biểu mẫu đánh giá thiệt hại kinh tế \n\nLãnh đạo các đơn vị thành viên để xảy ra sự cố lập một báo cáo về đánh giá thiệt hại kinh tế theo biểu mẫu được nêu trong Phụ lục số 3",
+      "cha": "9fb49293-a307-4a87-9beb-a9cedbb2855a",
+      "con": [],
+      "document": "",
+      "token_length": 662
+    },
+    "50670891-7953-412d-a022-e1877e5f6a52": {
+      "text": "CÁC PHỤ LỤC ĐÍNH KÈM \n Số TT: 1 \n    o Phụ lục số: Phụ lục \n    o Mã số: VSP-000-ATMT-486/F-01 \n    o Tên phụ lục: DANH MỤC CÁC ĐỊNH NGHĨA VÀ TỪ VIẾT TẮT \n Số TT: 2 \n    o Phụ lục số: Phụ lục \n    o Mã số: VSP-000-ATMT-486/F-02 \n Số TT: 3 \n    o Phụ lục số: Phụ lục \n    o Mã số: VSP-000-ATMT-486/F-03 \n    o Tên phụ lục: Biểu mẫu đánh giá thiệt hại kinh tế \n",
+      "cha": "root",
+      "con": [
+        "8c7f2705-9163-4a79-9d22-f172fe89b396",
+        "75a2f9e3-824c-4f8b-b115-5a2df750b2e7",
+        "31f46e4e-f5a6-4f73-b225-43a3928260cf"
+      ],
+      "document": "",
+      "token_length": 362
+    },
+    "8c7f2705-9163-4a79-9d22-f172fe89b396": {
+      "text": "Phụ lục \n",
+      "cha": "50670891-7953-412d-a022-e1877e5f6a52",
+      "con": [
+        "b6a41c03-3ac3-443d-aa93-c4b6c7029eee"
+      ],
+      "document": "",
+      "token_length": 11
+    },
+    "b6a41c03-3ac3-443d-aa93-c4b6c7029eee": {
+      "text": "",
+      "cha": "8c7f2705-9163-4a79-9d22-f172fe89b396",
+      "con": [],
+      "document": "",
+      "token_length": 0
+    },
+    "75a2f9e3-824c-4f8b-b115-5a2df750b2e7": {
+      "text": "DANH MỤC CÁC ĐỊNH NGHĨA VÀ TỪ VIẾT TẮT \n",
+      "cha": "50670891-7953-412d-a022-e1877e5f6a52",
+      "con": [
+        "a0e58388-b5ae-4b96-ab51-725898ed0e20",
+        "907a3708-ef05-4313-a40f-da2624e957e7",
+        "1143b596-6a25-4a1f-bb8e-4dbdc0559ddf"
+      ],
+      "document": "",
+      "token_length": 41
+    },
+    "a0e58388-b5ae-4b96-ab51-725898ed0e20": {
+      "text": "Danh mục các định nghĩa \n",
+      "cha": "75a2f9e3-824c-4f8b-b115-5a2df750b2e7",
+      "con": [
+        "73548b31-5175-4a1e-adee-8906c2632858"
+      ],
+      "document": "",
+      "token_length": 27
+    },
+    "73548b31-5175-4a1e-adee-8906c2632858": {
+      "text": "Các xí nghiệp thành viên của Liên doanh là các xí nghiệp trực thuộc Liên doanh “Vietsovpetro”.Tai nạn\nMột yếu tố xảy ra đột ngột, dẫn đến thiệt hại cho sức khỏe con người, thiệt hại về tài sản, cơ sở vật chất, mất sản phẩm hoặc dừng sản xuất, gây ô nhiễm môi trường.\nSự cố\nLỗi hoặc hư hỏng cho các thiết bị kỹ thuật được sử dụng tại một công trình sản xuất nguy hiểm, sai lệch chế độ làm việc của quy trình công nghệ.",
+      "cha": "a0e58388-b5ae-4b96-ab51-725898ed0e20",
+      "con": [],
+      "document": "",
+      "token_length": 417
+    },
+    "907a3708-ef05-4313-a40f-da2624e957e7": {
+      "text": "Tài sản sản xuất cố định \n",
+      "cha": "75a2f9e3-824c-4f8b-b115-5a2df750b2e7",
+      "con": [
+        "0a056ef0-f723-4851-bec9-e5b9ecfe3826"
+      ],
+      "document": "",
+      "token_length": 26
+    },
+    "0a056ef0-f723-4851-bec9-e5b9ecfe3826": {
+      "text": " Phương tiện lao động (tòa nhà, cấu trúc, thiết bị truyền dẫn, máy móc thiết bị, thiết bị đo lường và điều khiển, máy tính và thiết bị văn phòng, trang thiết bị và thiết bị thí nghiệm, phương tiện vận tải, v.v.).Giá trị còn lại\nChênh lệch giữa giá trị ban đầu (giá trị phục hồi) và tổng tiền tích lũy cho thời gian khấu hao (có tính đến việc đánh giá lại giá trị này).\nGiá trị ban đầu\nSố tiền chi phí mua (và nếu nhận được miễn phí, thì đó là số tiền mà tài sản đó được định giá) công trình xây dựng, sản xuất, giao hàng và đưa đến trạng thái phù hợp để sử dụng, ngoại trừ tổng thuế được khấu trừ hoặc được tính như một phần của chi phí.\nTài sản bị hư hại\nTài sản vật chất (tòa nhà, cấu trúc, thiết bị, sản phẩm, tài sản, v.v.), mà là kết quả của công việc sửa chữa sau sự cố, chúng có thể được đưa vào trạng thái cho phép sử dụng theo mục đích chức năng ban đầu.\n\nTai nạnBất kỳ sự kiện xảy ra ngoài kế hoạch hoặc có thể dẫn đến thiệt hại cho con người, môi trường, tài sản hoặc danh tiếng của Công ty hoặc các công ty con.\nHệ thống quản lý an toàn lao động, an toàn công nghiệp và bảo vệ môi trường\nTập hợp các hành động của tất cả nhân viên của liên doanh “Vietsovpetro” nhằm đảm bảo sự phát triển bền vững của liên doanh “Vietsovpetro” và đạt được sự tuân thủ đầy đủ các yêu cầu của pháp luật của Cộng hòa xã hội chủ nghĩa Việt Nam về an toàn lao động, an toàn công nghiệp và bảo vệ môi trường và các tài liệu nội bộ của Liên doanh “Vietsovpetro”.\nChi phí sản xuất\nTổng chi phí theo giá thị trường vào ngày định giá, để tạo ra một đối tượng giống hệt với đối tượng định giá có sử dụng cùng các vật liệu và công nghệ, có tính đến khấu hao của đối tượng.\nChi phí thay thế\nTổng chi phí tạo ra một đối tượng tương tự như đối tượng định giá theo giá thị trường hiện tại vào ngày định giá, có tính đến khấu hao của đối tượng định giá.\nBên thứ ba\nCá nhân hoặc pháp nhân không có mối quan hệ hợp đồng với Công ty/ Công ty con/ nhà thầu hoặc nhà thầu phụ của LD “Vietsovpetro”.\nGiá trị vật chất bị phá hủy\nTài sản vật chất (tòa nhà, công trình, thiết bị, sản phẩm, tài sản, v.v.) mà kết quả của công việc sửa chữa sau sự cố không thể được đưa vào trạng thái sử dụng cho mục đích chức năng ban đầu của chúng.\nChi phí sử dụng\nGiá trị của đối tượng định giá bằng với giá trị thị trường của vật liệu mà nó bao gồm, có tính đến chi phí xử lý thải bỏ đối tượng định giá.\nThiệt hại\nMất mát hoặc thiệt hại về tài sản, chi phí đã hoặc phải bỏ ra để khôi phục về tình trạng ban đầu đối với tài sản, môi trường và các quyền bị vi phạm.",
+      "cha": "907a3708-ef05-4313-a40f-da2624e957e7",
+      "con": [],
+      "document": "",
+      "token_length": 2519
+    },
+    "1143b596-6a25-4a1f-bb8e-4dbdc0559ddf": {
+      "text": "Các từ viết tắt \n",
+      "cha": "75a2f9e3-824c-4f8b-b115-5a2df750b2e7",
+      "con": [
+        "ccd73213-86a6-4498-bcf3-6f8bd6bcbb86"
+      ],
+      "document": "",
+      "token_length": 20
+    },
+    "ccd73213-86a6-4498-bcf3-6f8bd6bcbb86": {
+      "text": "Liên doanh “Vietsovpetro”Liên doanh Nga-Việt “Vietsovpetro”.\nATLĐ, ATCN và BVMT\nAn toàn lao động, an toàn công nghiệp và bảo vệ môi trường.\nPhòng ATSKMT BMĐH LD “Vietsovpetro”\nPhòng An toàn, Sức khỏe và Bảo vệ Môi trường Bộ máy điều hành Liên doanh “Vietsovpetro”.\nHệ thống quản lý ATLĐ, ATCN và BVMT \n Hệ thống quản lý an toàn lao động, an toàn công nghiệp và bảo vệ môi trường.\n<image>dfc33029-d1a0-4cba-a22f-f4909898ecf6</image>",
+      "cha": "1143b596-6a25-4a1f-bb8e-4dbdc0559ddf",
+      "con": [],
+      "document": "",
+      "token_length": 432
+    },
+    "31f46e4e-f5a6-4f73-b225-43a3928260cf": {
+      "text": "\nPhụ lục/ Приложение № 2\n \n",
+      "cha": "50670891-7953-412d-a022-e1877e5f6a52",
+      "con": [
+        "684e1d39-ac1f-4e4f-b35c-f173ef6edb7f",
+        "879bc662-022f-48e8-b2c5-7a5fc92dd16f"
+      ],
+      "document": "",
+      "token_length": 29
+    },
+    "684e1d39-ac1f-4e4f-b35c-f173ef6edb7f": {
+      "text": "Прямые потери- Tổn thất trực tiếp, Ппп \n\n Затраты на локализацию (ликвидацию) и расследование аварий - Chi phí cách ly (khắc phục) và điều tra sự cố, Пла \n\n Социально- экономические потери - Tổn thất kinh tế xã hội, Псэ \n\n Косвенный ущерб - Thiệt hại gián tiếp, Пнв \n\n Экологический ущерб - Thiệt hại môi trường, Пэкол \n\nПотери основных фондов - Tổn thất tài sản cố định, Поф \n\nПотери имущества третьих лиц - Tổn thất tài sản của bên thứ ba, Пим \n\nПотери товарно- материальных ценностей - Tổn thất nguyên vật liệu tồn kho, Птмф \n\n Расходы на локализацию(л иквидацию) аварии - Các chi phí cách ly/ khắc phục sự cố, Пл \n\nРасходы на расследование аварии - Chi phí điều tra sự cố, Пр \n\n Потери от гибели персонала- Tổn thất từ cái chết của nhân viên, Пгп \n\nПотери от травмирования персонала- Tổn thất từ thương tật của nhân viên, Птп",
+      "cha": "31f46e4e-f5a6-4f73-b225-43a3928260cf",
+      "con": [],
+      "document": "",
+      "token_length": 832
+    },
+    "879bc662-022f-48e8-b2c5-7a5fc92dd16f": {
+      "text": "Зарплата и условно- постоянных расходов за время - Tiền lương và chi phí cố định trong thời gian dừng sự cố Пзп \n\nУбытки от уплаты различных штрафов, пени - Các khoản lỗ do các khoản phạt, tiền phạt Пш \n\nНедополученной прибыли третьих лиц - Lợi nhuận bị mất của bên thứ ba ПНПТЛ \n\nНедополученная прибыль в результате простоя предприятия - Lợi nhuận bị mất do thời gian ngừng hoạt động ПНП \n\n Ущерб от загрязнения атмосферы - Thiệt hại do ô nhiễm không khí, Эа \n\nУщерб от загрязнения водных ресурсов - Thiệt hại do ô nhiễm nguồn nước, Эв \n\nУщерб от загрязнения почвы - Thiệt hại do ô nhiễm đất, Эп \n\nУщерб от уничтожения биологических ресурсов - Thiệt hại do phá hủy tài nguyên sinh học, Эб \n\nУщерб от загрязнения территории обломками - Thiệt hại do tắc nghẽn của diện tích mặt bằng bởi các mảnh vụn, Э",
+      "cha": "31f46e4e-f5a6-4f73-b225-43a3928260cf",
+      "con": [],
+      "document": "",
+      "token_length": 808
+    }
+  }
+}
